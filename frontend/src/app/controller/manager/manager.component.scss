@@ -1,11 +1,9 @@
-$primary: #ea80fc;
-$p-light: #ffb2ff;
-$p-dark: #b64fc8;
-$secondary: #b64fc8;
-$s-light: #ffffff;
-$s-dark: #c0b3c2;
-$text-p: #000;
-$text-s: #000;
+$color-1: #BD83CE;
+$color-2: #E5B0EA;
+$color-3: #F1C6E7;
+$color-4: #F7E8F6;
+$color-white: #fff;
+$color-black: #000;
 
 .nav {
   display: flex;
@@ -13,7 +11,7 @@ $text-s: #000;
   justify-content: space-between;
   align-items: center;
   width: calc(100% - 20px);
-  background-color: $primary;
+  background-color: $color-2;
   height: 50px;
   padding: 10px;
 }
@@ -48,6 +46,31 @@ $text-s: #000;
 }
 
 .nav-button:hover {
-  background-color: $p-dark;
+  background-color: $color-1;
   cursor: pointer;
+}
+
+.manager-home {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  background-color: $color-white;
+}
+
+.manager-box {
+  position: relative;
+  background-color: $color-4;
+  width: 220px;
+  height: 220px;
+  margin: 20px;
+  padding: 20px;
+}
+
+.box-number {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  color: $color-2;
+  font-size: 50px;
 }
