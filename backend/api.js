@@ -1,12 +1,25 @@
 const express = require('express');
 const router = express.Router();
 
+const mysql = require('mysql');
+
 /* GET home page. */
 router.post('/', function(req, res, next) {
 
-  
+  if (req.body['op'] == undefined) {
+    res.send({ res: 'err', message: 'no op' });
+    return;
+  }
 
-  res.send({ res: 'ok', message: req.body });
+  switch(req.body.op) {
+    case 'getRooms' : getRooms(req, res); break;
+  }
 });
+
+function getRooms(req, res) {
+
+
+
+}
 
 module.exports = router;
