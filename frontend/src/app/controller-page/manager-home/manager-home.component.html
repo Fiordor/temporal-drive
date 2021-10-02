@@ -1,0 +1,7 @@
+<div class="manager-home">
+  <div *ngFor="let room of rooms">
+    <div class="manager-box" (click)="clickOpenRoom(room)">
+      <div class="box-number">#{{room.id}}</div>
+    </div>
+  </div>
+</div>

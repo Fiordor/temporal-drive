@@ -7,11 +7,13 @@ import { Socket } from 'ngx-socket-io';
 export class SocketService {
 
   constructor(private socket: Socket) {
+    /*
     console.log(socket);
     socket.connect();
 
     this.socket.on('connection', (data) => {
       console.log('connection', data);
     });
+    */
   }
 }

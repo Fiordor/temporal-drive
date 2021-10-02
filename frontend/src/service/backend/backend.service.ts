@@ -16,11 +16,16 @@ export class BackendService {
 
   constructor(private http: HttpClient) { }
 
-  getRooms() {
-
-    const body = { op: 'getRooms' };
-
+  private sendPost(body) {
     return this.http.post( environment.backend, body )
     .pipe( map(res => { return <Res>res;}) );
+  }
+
+  getRooms() {
+    return this.sendPost({ op: 'getRooms' });
+  }
+
+  roomOnOff(room) {
+    return this.sendPost({ op: 'roomOnOff', room: room });
   }
 }

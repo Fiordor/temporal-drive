@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  backend: 'http://localhost:3000',
-  socket:  'http://localhost:5000'
+  backend: 'http://82.223.68.210:3000',
+  socket:  'http://82.223.68.210:5000'
 };
 
 /*
