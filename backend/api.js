@@ -21,10 +21,26 @@ router.post('/', function(req, res, next) {
   }
 
   switch(req.body.op) {
+    case 'getRoom' : getRoom(req, res); break;
     case 'getRooms' : getRooms(req, res); break;
     case 'roomOnOff' : roomOnOff(req, res); break;
+    case 'canUploadFile' : canUploadFile(req, res); break;
   }
 });
+
+function getRoom(req, res) {
+
+  let sql =
+  `SELECT *
+  FROM room
+  WHERE token = '${req.body.token}' AND openRoom = 1;`;
+
+  connection.query(sql, function (err, rows, fields) {
+    if (err) throw err;
+
+    res.send( rows.length == 0 ? er('token not exists') : ok(rows[0]) );
+  });  
+}
 
 function getRooms(req, res) {
   connection.query('SELECT * FROM room', function (err, rows, fields) {
@@ -59,8 +75,16 @@ function roomOnOff(req, res) {
   });
 }
 
+function canUploadFile(req, res) {
+
+  console.log(req.body.file);
+
+  res.send(ok(''));
+
+}
+
 function ok(message) { return { res: 'ok', message: message } }
 
-function err(message) { return { res: 'err', message: message } }
+function er(message) { return { res: 'err', message: message } }
 
 module.exports = router;

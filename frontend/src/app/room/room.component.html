@@ -1,1 +1,14 @@
-<p>room works!</p>
+<div class="nav">
+  <div class="nav-left"></div>
+  <div class="nav-right">
+    <div class="nav-button">
+      <mat-icon aria-hidden="false" aria-label="logout">logout</mat-icon>
+    </div>
+  </div>
+</div>
+
+<label for="input" class="add-button">
+  <mat-icon aria-hidden="false" aria-label="add">add</mat-icon>
+</label>
+
+<input (change)="uploadFile($event.target.files[0])" type="file" id="input" name="input" style="display:none;">

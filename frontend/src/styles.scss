@@ -24,6 +24,89 @@ body {
 }
 
 //
+// nav
+//
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: calc(100% - 20px);
+  background-color: $color-2;
+  height: 50px;
+  padding: 10px;
+}
+
+.nav mat-icon {
+  font-size: 25px;
+}
+
+.nav-left {
+  display: flex;
+  flex-direction: row;
+}
+
+.nav-left .nav-button {
+  margin-right: 5px;
+  font-size: 25px;
+}
+
+.nav-right .nav-button {
+  font-size: 25px;
+}
+
+.nav-button {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+.nav-button:hover {
+  background-color: $color-1;
+  cursor: pointer;
+}
+
+//
+//
+//
+
+.add-button {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s;
+  border-radius: 50%;
+  background-color: $color-2;
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+}
+
+.add-button mat-icon {
+  width: auto;
+  height: auto;
+  font-size: 40px;
+}
+
+.add-button:hover {
+  background-color: $color-1;
+  cursor: pointer;
+}
+
+//
 // manager-home ----------------------------------------------------------------
 //
 

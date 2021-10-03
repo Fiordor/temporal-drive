@@ -7,7 +7,9 @@ import { RoomComponent } from './room/room.component';
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'controller', component: ControllerComponent },
-  { path: 'room', component: RoomComponent },
+  { path: 'room/:id', component: RoomComponent },
+
+  { path: '**', pathMatch: 'full', component: HomeComponent }
 ];
 
 @NgModule({
