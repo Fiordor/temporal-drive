@@ -7,6 +7,8 @@ $color-4: #F7E8F6;
 $color-white: #fff;
 $color-black: #000;
 
+$button-transition: 0.2s;
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
@@ -24,6 +26,54 @@ body {
 }
 
 //
+// home
+//
+
+.home-box {
+
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  position: fixed;
+  background-color: $color-2;
+  width: 250px;
+  height: 250px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-room {
+  text-align: center;
+}
+
+.input-room input {
+  margin-bottom: 5px;
+  text-align: center;
+  font-size: 20px;
+  width: 60px;
+  padding: 10px;
+}
+
+.input-room .home-button {
+  margin-top: 5px;
+  transition: $button-transition;
+  border-radius: 4px;
+  width: auto;
+  text-transform: uppercase;
+  font-size: 20px;
+  padding: 10px;
+}
+
+.input-room .home-button:hover {
+  margin-top: 5px;
+  background-color: $color-1;
+  cursor: pointer;
+}
+
+//
 // nav
 //
 
@@ -34,7 +84,7 @@ body {
   align-items: center;
   width: calc(100% - 20px);
   background-color: $color-2;
-  height: 50px;
+  height: auto;
   padding: 10px;
 }
 
@@ -63,7 +113,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transition: 0.2s;
+  transition: $button-transition;
   border-radius: 50%;
 }
 
@@ -73,7 +123,7 @@ body {
 }
 
 //
-//
+// room
 //
 
 .add-button {
@@ -83,7 +133,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transition: 0.2s;
+  transition: $button-transition;
   border-radius: 50%;
   background-color: $color-2;
   position: fixed;
@@ -104,6 +154,30 @@ body {
 .add-button:hover {
   background-color: $color-1;
   cursor: pointer;
+}
+
+.room-content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.img-box {
+  background-color: $color-4;
+  width: 150px;
+  height: 150px;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-box img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
 }
 
 //
@@ -129,10 +203,10 @@ body {
 .manager-box {
   position: relative;
   background-color: $color-4;
-  width: 220px;
-  height: 220px;
-  margin: 20px;
-  padding: 20px;
+  width: 120px;
+  height: 120px;
+  margin: 10px;
+  padding: 10px;
 }
 
 //
@@ -171,7 +245,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transition: 0.2s;
+  transition: $button-transition;
   border-radius: 50%;
 }
 

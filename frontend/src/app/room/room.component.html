@@ -1,9 +1,14 @@
 <div class="nav">
   <div class="nav-left"></div>
   <div class="nav-right">
-    <div class="nav-button">
+    <div class="nav-button" (click)="goTo('/')">
       <mat-icon aria-hidden="false" aria-label="logout">logout</mat-icon>
     </div>
+  </div>
+</div>
+<div class="room-content">
+  <div class="img-box" *ngFor="let img of files">
+    <img [src]="img" (error)="errorLoadingImg($event)">
   </div>
 </div>
 

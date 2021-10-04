@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BackendService } from 'src/service/backend/backend.service';
 import { SocketService } from 'src/service/socket/socket.service';
 
@@ -13,7 +14,8 @@ export class ManagerComponent implements OnInit {
 
   rooms: any[];
 
-  constructor(private backendService: BackendService, private socketService: SocketService) {
+  constructor(private backendService: BackendService, private socketService: SocketService,
+    private router: Router) {
     this.rooms = [];
     for(let i = 0; i < 6; i++) {
       this.rooms[i] = { id: i+1 }
@@ -28,6 +30,8 @@ export class ManagerComponent implements OnInit {
       
     });
   }
+
+  goTo(path) { this.router.navigate([path]); }
 
   openRoom(room) { 
     this.selectedRoom = room;

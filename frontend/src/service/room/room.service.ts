@@ -21,6 +21,10 @@ export class RoomService {
     .pipe( map(res => { return <Res>res;}) );
   }
 
+  getFiles(token) {
+    return this.sendPost({ op: 'getFiles', token: token });
+  }
+
   getRoom(token) {
     return this.sendPost({ op: 'getRoom', token: token });
   }

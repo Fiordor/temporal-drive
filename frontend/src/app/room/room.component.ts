@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from 'src/service/room/room.service';
 import { SocketService } from 'src/service/socket/socket.service';
 
@@ -11,9 +11,10 @@ import { SocketService } from 'src/service/socket/socket.service';
 export class RoomComponent implements OnInit, OnDestroy {
 
   room: any = undefined;
+  files: string[] = [];
 
   constructor(private route: ActivatedRoute, private roomService: RoomService,
-    private socketService: SocketService) {
+    private socketService: SocketService, private router: Router) {
 
   }
 
@@ -24,6 +25,14 @@ export class RoomComponent implements OnInit, OnDestroy {
         if (res.res == 'ok') {
           this.room = res.message;
           this.socketService.connectHasRoom();
+          this.roomService.getFiles(this.room.token).subscribe(res => {
+            res.message.forEach(file => {
+              this.files.push(file.name);
+              console.log(this.files);
+            });
+          });
+        } else {
+          this.goTo('/');
         }
       })
     });
@@ -31,6 +40,12 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.socketService.disconnect();
+  }
+
+  goTo(path) { this.router.navigate([path]); }
+
+  errorLoadingImg(event) {
+    console.log(event);
   }
 
   uploadFile(event) {
@@ -42,6 +57,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
 
     this.roomService.canUploadFile(file).subscribe(res => {
+      console.log(res);
       if (res.res == 'ok') {
         const reader = new FileReader();
         reader.readAsDataURL(event);
