@@ -54,18 +54,22 @@ export class RoomComponent implements OnInit, OnDestroy {
             index: 0
           }
 
-          const stringLength = 1 * 1024;
+          const stringLength = 1024;
           let pointer = 0, index = 0;
           while (pointer + stringLength < base64.length) {
             data.base64 = base64.substring(pointer, pointer + stringLength);
             data.index = index++;
             this.socketService.uploadFile(data);
             pointer += stringLength;
+            console.log(`${pointer / base64.length * 100}%`);
           }
           data.base64 = base64.substring(pointer, base64.length);
           data.index = index++;
           this.socketService.uploadFile(data);
-          this.socketService.uploadFile('break');
+          console.log(`${base64.length / base64.length * 100}%`);
+          data.base64 = 'break';
+          data.index = -1;
+          this.socketService.uploadFile(data);
         }
       }
     });

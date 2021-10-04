@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs')
+const fs = require('fs');
+const path = require('path');
+
+const PUBLIC = 'files';
 
 const mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -77,10 +80,21 @@ function roomOnOff(req, res) {
 
 function canUploadFile(req, res) {
 
-  console.log(req.body.file);
+  let pathRoom = path.join(__dirname, PUBLIC, req.body.file.token);
+  if (fs.existsSync(pathRoom)) {
 
-  res.send(ok(''));
+    let file = req.body.file;
 
+    let sql = `INSERT INTO box
+      VALUES ('${file.token}', '${file.name}', ${file.size}, 0);`
+
+    connection.query(sql, function (err, rows, fields) {
+      if (err) throw err;
+      res.send(ok(rows));
+    });
+  } else {
+    res.send(er('room path not exists'));
+  }
 }
 
 function ok(message) { return { res: 'ok', message: message } }
