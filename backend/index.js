@@ -18,10 +18,10 @@ const PUBLIC = 'files';
 
 const mysql = require('mysql');
 var connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'admin',
-  password: fs.readFileSync('./admin.txt', { encoding: 'utf8' }),
-  database: 'temporal_box'
+	host: 'localhost',
+	user: 'admin',
+	password: fs.readFileSync('./admin.txt', { encoding: 'utf8' }),
+	database: 'temporal_box'
 });
 
 connection.connect();
@@ -44,47 +44,49 @@ io.on('connection', (socket) => {
 
 	socket.on('upload-file', (data) => {
 		if (data.index == -1 && data.base64 == 'break') {
-			
+
 			setTimeout(() => {
-				
+
 				let sql1 =
 					`SELECT *
-					FROM file_buff
-					WHERE token LIKE '${data.token}' AND name LIKE '${data.name}'
-					ORDER By i;`
+				FROM file_buff
+				WHERE token LIKE '${data.token}' AND name LIKE '${data.name}'
+				ORDER By i;`
 
-				connection.query(sql1, function (err, rows, fields) {
+				connection.query(sql1, (err, rows, fields) => {
 					if (err) throw err;
 
 					let base64 = '';
-					rows.forEach(row => {
-						base64 += row.data;
-					});
-
-					console.log(base64.length);
+					rows.forEach(row => { base64 += row.data; });
 					base64 = base64.substring(base64.indexOf(',') + 1);
+
 					fs.writeFile(path.join(__dirname, PUBLIC, data.token, data.name), base64, 'base64', (err) => {
-						if (err) throw err;
-					})
+						if (err) {
+							console.log(err);
+						} else {
+							let sql3 =
+								`UPDATE box
+							SET dateCreate = ${Date.now()}
+							WHERE id LIKE '${data.token}${data.name}';`
+							connection.query(sql3, (err, rows, fields) => { if (err) throw err; });
+						}
+					});
 
 					let sql2 =
 						`DELETE FROM file_buff
-						WHERE token LIKE '${data.token}' AND name LIKE '${data.name}';`
-					connection.query(sql2, function (err, rows, fields) {
-						if (err) throw err;
-						console.log(rows);
-					});	
+					WHERE token LIKE '${data.token}' AND name LIKE '${data.name}';`
+					connection.query(sql2, (err, rows, fields) => { if (err) throw err; });
 
-				});	
-				
+				});
+
 
 			}, 5 * 1000);
-			
+
 		} else {
 			let sql = `INSERT INTO file_buff
 				VALUES ('${data.token}', '${data.name}', '${data.index}', '${data.base64}');`
 
-			connection.query(sql, function (err, rows, fields) { if (err) throw err; });
+			connection.query(sql, (err, rows, fields) => { if (err) console.log(err); });
 		}
 	})
 
