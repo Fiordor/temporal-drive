@@ -7,8 +7,11 @@
   </div>
 </div>
 <div class="room-content">
-  <div class="img-box" *ngFor="let img of files">
-    <img [src]="img" (error)="errorLoadingImg($event)">
+  <div class="img-box" *ngFor="let file of files">
+    <div class="img-delete" (click)="deleteFile(file)">
+      <mat-icon aria-hidden="false" aria-label="delete">delete</mat-icon>    
+    </div>
+    <img [src]="file.path" (error)="errorLoadingImg($event)">
   </div>
 </div>
 

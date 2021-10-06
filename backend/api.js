@@ -43,16 +43,20 @@ function getFiles(req, res) {
   let sql =
     `SELECT name
     FROM box
-    WHERE token = '${req.body.token}';`;
+    WHERE token = '${req.body.token}' AND dateCreate > 0;`;
 
   connection.query(sql, function (err, rows, fields) {
     if (err) { res.send( er(err) ); }
     else {
+      let files = [];
       rows.forEach(row => {
-        row.name = path.join('/', PUBLIC, req.body.token, row.name);
-        row.name = URL + row.name;
+        let file = {
+          name: row.name,
+          path: URL + path.join('/', PUBLIC, req.body.token, row.name)
+        }
+        files.push(file);
       });
-      res.send( ok(rows) );
+      res.send( ok(files) );
     }
   }); 
 }

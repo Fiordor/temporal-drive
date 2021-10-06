@@ -42,6 +42,8 @@ io.on('connection', (socket) => {
 
 	console.log('connection', socket.id);
 
+	socket.on('join-on-room', (room) => { socket.join(room); });
+
 	socket.on('upload-file', (data) => {
 		if (data.index == -1 && data.base64 == 'break') {
 
@@ -88,7 +90,23 @@ io.on('connection', (socket) => {
 
 			connection.query(sql, (err, rows, fields) => { if (err) console.log(err); });
 		}
-	})
+	});
+
+	socket.on('delete-file', (img) => {
+
+		fs.unlink(path.join(__dirname, PUBLIC, img.token, img.name), (err) => {
+			if (err) {
+				console.log(err);
+			} else {
+				let sql = `DELETE FROM box
+				WHERE id LIKE '${img.token}${img.name}';`
+
+				connection.query(sql, (err, rows, fields) => {
+					if (err) console.log(err);
+				});
+			}
+		});
+	});
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected');

@@ -24,12 +24,9 @@ export class RoomComponent implements OnInit, OnDestroy {
       this.roomService.getRoom(params['id']).subscribe(res => {
         if (res.res == 'ok') {
           this.room = res.message;
-          this.socketService.connectHasRoom();
+          this.socketService.connectHasRoom(this.room.token);
           this.roomService.getFiles(this.room.token).subscribe(res => {
-            res.message.forEach(file => {
-              this.files.push(file.name);
-              console.log(this.files);
-            });
+            this.files = res.message;
           });
         } else {
           this.goTo('/');
@@ -89,5 +86,9 @@ export class RoomComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  deleteFile(file) {
+    this.socketService.deleteFile({ token: this.room.token, name: file.name });
   }
 }

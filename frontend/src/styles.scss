@@ -171,6 +171,8 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
+  border-radius: 2px;
 }
 
 .img-box img {
@@ -178,6 +180,25 @@ body {
   max-height: 100%;
   width: auto;
   height: auto;
+}
+
+.img-delete {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 5px;
+  background-color: rgba(229, 176, 234, 0.5);
+  transition: $button-transition;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  align-items: center;
+}
+
+.img-delete:hover {
+  background-color: rgba(229, 176, 234, 1);
+  cursor: pointer;
 }
 
 //
