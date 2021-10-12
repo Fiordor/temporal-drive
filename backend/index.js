@@ -15,6 +15,7 @@ const io = require('socket.io')(server, { cors: { origin: ['*'] } });
 
 const api = require('./api');
 const PUBLIC = 'files';
+const URL = 'http://82.223.68.210:3000';
 
 const mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -40,9 +41,59 @@ app.post('/', api);
  */
 io.on('connection', (socket) => {
 
+	const SAVE_TIME = 5;
+	let idInterval = null;
+
+	const updateFiles = (token) => {
+		let sql = `SELECT name FROM box WHERE token = '${token}' AND dateCreate > 0;`;
+
+		connection.query(sql, function (err, rows, fields) {
+			if (err) { console.log(err); }
+			else {
+				let files = [];
+				rows.forEach(row => {
+					let file = {
+						name: row.name,
+						path: URL + path.join('/', PUBLIC, token, row.name)
+					}
+					files.push(file);
+				});
+				console.log(`[${new Date().toISOString()}] update-files`);
+				socket.to(token).emit('update-files', files)
+			}
+		});
+	}
+
 	console.log('connection', socket.id);
 
-	socket.on('join-on-room', (room) => { socket.join(room); });
+	socket.on('join-on-room', (room) => {
+		console.log(`[${new Date().toISOString()}] join-on-room`);
+		socket.join(room);
+		idInterval = setInterval(() => {
+			let sql = `SELECT name FROM box WHERE token = '${room}' AND dateCreate > 0;`;
+
+			connection.query(sql, function (err, rows, fields) {
+				if (err) { console.log(err); }
+				else {
+					let files = [];
+					rows.forEach(row => {
+						let file = {
+							name: row.name,
+							path: URL + path.join('/', PUBLIC, room, row.name)
+						}
+						files.push(file);
+					});
+					console.log(`[${new Date().toISOString()}] update-files ${socket.id}`);
+					socket.emit('update-files', files);
+				}
+			});
+		}, 1000);
+	});
+
+	socket.on('stop-first-update-files', () => {
+		console.log(`[${new Date().toISOString()}] stop-first-update-files`);
+		if (idInterval != null) { clearInterval(idInterval); }
+	});
 
 	socket.on('upload-file', (data) => {
 		if (data.index == -1 && data.base64 == 'break') {
@@ -67,10 +118,12 @@ io.on('connection', (socket) => {
 							console.log(err);
 						} else {
 							let sql3 =
-								`UPDATE box
-							SET dateCreate = ${Date.now()}
+								`UPDATE box SET dateCreate = ${Date.now()}
 							WHERE id LIKE '${data.token}${data.name}';`
-							connection.query(sql3, (err, rows, fields) => { if (err) throw err; });
+							connection.query(sql3, (err, rows, fields) => {
+								if (err) { console.log(err); }
+								else { updateFiles(data.token); }
+							});
 						}
 					});
 
@@ -78,11 +131,10 @@ io.on('connection', (socket) => {
 						`DELETE FROM file_buff
 					WHERE token LIKE '${data.token}' AND name LIKE '${data.name}';`
 					connection.query(sql2, (err, rows, fields) => { if (err) throw err; });
-
 				});
 
 
-			}, 5 * 1000);
+			}, SAVE_TIME * 1000);
 
 		} else {
 			let sql = `INSERT INTO file_buff
@@ -98,11 +150,10 @@ io.on('connection', (socket) => {
 			if (err) {
 				console.log(err);
 			} else {
-				let sql = `DELETE FROM box
-				WHERE id LIKE '${img.token}${img.name}';`
-
+				let sql = `DELETE FROM box WHERE id LIKE '${img.token}${img.name}';`
 				connection.query(sql, (err, rows, fields) => {
-					if (err) console.log(err);
+					if (err) { console.log(err); }
+					else { updateFiles(img.token); }
 				});
 			}
 		});

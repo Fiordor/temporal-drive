@@ -10,8 +10,10 @@ import { SocketService } from 'src/service/socket/socket.service';
 })
 export class RoomComponent implements OnInit, OnDestroy {
 
+  noFiles: boolean = true;
+
   room: any = undefined;
-  files: string[] = [];
+  files: any[] = [];
 
   constructor(private route: ActivatedRoute, private roomService: RoomService,
     private socketService: SocketService, private router: Router) {
@@ -24,7 +26,9 @@ export class RoomComponent implements OnInit, OnDestroy {
       this.roomService.getRoom(params['id']).subscribe(res => {
         if (res.res == 'ok') {
           this.room = res.message;
-          this.socketService.connectHasRoom(this.room.token);
+          this.socketService.connectHasRoom(this.room.token).subscribe(() => {
+            this.startListeners();
+          });
           this.roomService.getFiles(this.room.token).subscribe(res => {
             this.files = res.message;
           });
@@ -39,11 +43,19 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.socketService.disconnect();
   }
 
+  startListeners() {
+    this.socketService.updateFiles().subscribe(res => {
+      if (this.noFiles) {
+        this.socketService.stopFirstUpdateFules();
+        this.noFiles = false;
+      }
+      console.log('updateFiles', res);
+    });
+  }
+
   goTo(path) { this.router.navigate([path]); }
 
-  errorLoadingImg(event) {
-    console.log(event);
-  }
+  errorLoadingImg(event) { console.log(event); }
 
   uploadFile(event) {
     
@@ -54,7 +66,6 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
 
     this.roomService.canUploadFile(file).subscribe(res => {
-      console.log(res);
       if (res.res == 'ok') {
         const reader = new FileReader();
         reader.readAsDataURL(event);

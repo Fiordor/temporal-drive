@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
+import { Subject } from 'rxjs';
+
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,12 +13,21 @@ export class SocketService {
   }
 
   connectHasRoom(token) {
+
+    let subject = new Subject<any>()
+
     this.socket.connect();
 
     this.socket.on('connect', () => {
       this.socket.emit('join-on-room', token);
       console.log(`connect ${this.socket.ioSocket.id} on ${token}`);
+      this.socket.fromEvent('update-files').subscribe(data => {
+        console.log(data);
+      });
+      subject.next();
     });
+
+    return subject;
   }
 
   disconnect() {
@@ -40,5 +52,18 @@ export class SocketService {
    */
   deleteFile(fileObject) {
     this.socket.emit('delete-file', fileObject);
+  }
+
+  stopFirstUpdateFules() {
+    this.socket.emit('stop-first-update-files');
+  }
+
+  /**
+   * Escucha evento cuando se actualiza la tabla box.
+   * 
+   * @returns [ { path, name }, ... ]
+   */
+  updateFiles() {
+    return this.socket.fromEvent('update-files').pipe( map( (data) => { return data; } ) );
   }
 }

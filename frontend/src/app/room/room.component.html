@@ -12,6 +12,8 @@
       <mat-icon aria-hidden="false" aria-label="delete">delete</mat-icon>    
     </div>
     <img [src]="file.path" (error)="errorLoadingImg($event)">
+    <div class="img-spinner"></div>
+    <div class="img-perc">%</div>
   </div>
 </div>
 

@@ -15,6 +15,10 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  onKeydown(event) {
+    if (event.key === "Enter") { this.join(); }
+  }
+
   join() {
     this.router.navigate(['room', this.room]);
   }
