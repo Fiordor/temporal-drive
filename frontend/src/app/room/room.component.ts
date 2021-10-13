@@ -29,9 +29,6 @@ export class RoomComponent implements OnInit, OnDestroy {
           this.socketService.connectHasRoom(this.room.token).subscribe(() => {
             this.startListeners();
           });
-          this.roomService.getFiles(this.room.token).subscribe(res => {
-            this.files = res.message;
-          });
         } else {
           this.goTo('/');
         }
@@ -45,11 +42,32 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   startListeners() {
     this.socketService.updateFiles().subscribe(res => {
+      console.log('updafiles');
       if (this.noFiles) {
-        this.socketService.stopFirstUpdateFules();
+        this.socketService.stopFirstUpdateFiles();
         this.noFiles = false;
+        this.files = res;
+      } else {
+        console.log('updatefiles', res);
+        res.forEach(outFile => {
+          let localFile = this.files.find(f => f.name == outFile.name);
+          if (localFile == undefined) {
+            this.files.push(outFile);
+          } else {
+            if (localFile['perc'] != undefined) {
+              localFile.path = outFile.path;
+              delete localFile['perc'];
+            }
+          }
+        });
+
+        this.files.forEach((localFile, index) => {
+          let outFile = res.findIndex(f => f.name == localFile.name);
+          if (outFile == -1 && localFile['perc'] == undefined) {
+            this.files.splice(index, 1);
+          }
+        });
       }
-      console.log('updateFiles', res);
     });
   }
 
@@ -58,7 +76,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   errorLoadingImg(event) { console.log(event); }
 
   uploadFile(event) {
-    
+
     let file = {
       token: this.room.token,
       name: event.name,
@@ -79,18 +97,32 @@ export class RoomComponent implements OnInit, OnDestroy {
           }
 
           const stringLength = 1024;
-          let pointer = 0, index = 0;
-          while (pointer + stringLength < base64.length) {
-            data.base64 = base64.substring(pointer, pointer + stringLength);
-            data.index = index++;
-            this.socketService.uploadFile(data);
-            pointer += stringLength;
-            console.log(`${pointer / base64.length * 100}%`);
+
+          let procLimit = base64.length / stringLength - 1;
+          if (Math.trunc(procLimit) != procLimit) { procLimit = Math.trunc(procLimit) + 1; }
+
+          let fileOnArray = {
+            name: event.name,
+            path: base64,
+            perc: 0.0,
+            proc: 0.0,
+            procLimit: procLimit
           }
-          data.base64 = base64.substring(pointer, base64.length);
-          data.index = index++;
+
+          this.files.push(fileOnArray);
+
+          let i = 0;
+          while (i < fileOnArray.procLimit) {
+            let start = i * stringLength;
+            let end = start + stringLength;
+            data.base64 = base64.substring(i * stringLength, end);
+            data.index = i++;
+            this.socketService.uploadFile(data);
+          }
+          data.base64 = base64.substring(i * stringLength);
+          data.index = i++;
           this.socketService.uploadFile(data);
-          console.log(`${base64.length / base64.length * 100}%`);
+
           data.base64 = 'break';
           data.index = -1;
           this.socketService.uploadFile(data);
@@ -100,6 +132,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   deleteFile(file) {
+    this.files.splice(this.files.findIndex(f => f.name == file.name), 1);
     this.socketService.deleteFile({ token: this.room.token, name: file.name });
   }
 }

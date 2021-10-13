@@ -8,12 +8,14 @@
 </div>
 <div class="room-content">
   <div class="img-box" *ngFor="let file of files">
-    <div class="img-delete" (click)="deleteFile(file)">
+    <div *ngIf="file.perc == undefined" class="img-delete" (click)="deleteFile(file)">
       <mat-icon aria-hidden="false" aria-label="delete">delete</mat-icon>    
     </div>
     <img [src]="file.path" (error)="errorLoadingImg($event)">
-    <div class="img-spinner"></div>
-    <div class="img-perc">%</div>
+    <div *ngIf="file.perc != undefined" class="img-spinner"></div>
+    <div *ngIf="file.perc != undefined" class="img-perc">
+      {{ file.perc == 100 ? 'Esperando respuesta' : file.perc + '%' }}
+    </div>
   </div>
 </div>
 

@@ -54,7 +54,7 @@ export class SocketService {
     this.socket.emit('delete-file', fileObject);
   }
 
-  stopFirstUpdateFules() {
+  stopFirstUpdateFiles() {
     this.socket.emit('stop-first-update-files');
   }
 
@@ -64,6 +64,6 @@ export class SocketService {
    * @returns [ { path, name }, ... ]
    */
   updateFiles() {
-    return this.socket.fromEvent('update-files').pipe( map( (data) => { return data; } ) );
+    return this.socket.fromEvent('update-files').pipe( map( (data) => { return <any>data; } ) );
   }
 }
