@@ -2,28 +2,19 @@
 
 $color-1: #BD83CE;
 $color-2: #E5B0EA;
+$color-2-opacity: rgba(229, 176, 234, 0.5);
 $color-3: #F1C6E7;
 $color-4: #F7E8F6;
 $color-white: #fff;
 $color-black: #000;
+$color-red: #d50000;
+$color-green: #64dd17;
 
 $button-transition: 0.2s;
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-body {
-
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-
-  max-width: 600px;
-  width: 100%;
-  height: 100%;
-  box-shadow: 0px 0px 5px 0px #000000;
-}
 
 //
 // home
@@ -157,29 +148,67 @@ body {
 }
 
 .room-content {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  margin: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
+  row-gap: 10px;
+  justify-items: center;
 }
 
 .img-box {
   background-color: $color-4;
-  width: 150px;
-  height: 150px;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  width: 100%;
+  height: 200px;
   position: relative;
   border-radius: 2px;
 }
 
-.img-box img {
+.img-prev {
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  transition: $button-transition;
+  z-index: 1;
+}
+
+.img-prev-open {
+  background-color: $color-2-opacity;
+  position: fixed;
+  z-index: 10;
+}
+
+.img-main {
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
+}
+
+.img-main:hover {
+  cursor: pointer;
+}
+
+.img-close {
+  @extend .add-button;
+  background-color: $color-2-opacity;
+  position: fixed !important;
+  top: 0;
+  right: 0;
+}
+
+.img-close:hover {
+  background-color: $color-2;
 }
 
 .img-delete {
@@ -187,45 +216,61 @@ body {
   top: 5px;
   right: 5px;
   padding: 5px;
-  background-color: rgba(229, 176, 234, 0.5);
+  background-color: $color-2-opacity;
   transition: $button-transition;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   justify-items: center;
   align-items: center;
+
+  z-index: 2;
 }
 
 .img-delete:hover {
-  background-color: rgba(229, 176, 234, 1);
+  background-color: $color-2;
   cursor: pointer;
 }
 
-.img-spinner {
+.img-progress {
   position: absolute;
-  border: 10px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 10px solid $color-black;
-  width: 100px;
-  height: 100px;
-  -webkit-animation: spin 2s linear infinite; /* Safari */
-  animation: spin 2s linear infinite;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  row-gap: 10px;
 }
 
-.img-perc {
+.img-prog-bar {
+  position: relative;
+  height: 25px;
+  width: 100%;
+  background-color: $color-2-opacity;
+}
+
+.img-prog-label {
   position: absolute;
-  text-align: center;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
-/* Safari */
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+.img-prog-label-prog {
+  width: 40px;
+  text-align: right;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.img-prog-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  transition: .1s;
+  background-color: $color-green;
 }
 
 //

@@ -21,9 +21,6 @@ export class SocketService {
     this.socket.on('connect', () => {
       this.socket.emit('join-on-room', token);
       console.log(`connect ${this.socket.ioSocket.id} on ${token}`);
-      this.socket.fromEvent('update-files').subscribe(data => {
-        console.log(data);
-      });
       subject.next();
     });
 
@@ -65,5 +62,9 @@ export class SocketService {
    */
   updateFiles() {
     return this.socket.fromEvent('update-files').pipe( map( (data) => { return <any>data; } ) );
+  }
+
+  updateFileState() {
+    return this.socket.fromEvent('update-file-state').pipe( map( (data) => { return <any>data; } ) );
   }
 }

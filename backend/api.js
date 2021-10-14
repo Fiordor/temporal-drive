@@ -150,6 +150,7 @@ function canUploadFile(req, res) {
       if (err) { res.send(er(err)); }
       else { res.send(ok(rows)); }
     });
+    
   } else {
     res.send(er('room path not exists'));
   }

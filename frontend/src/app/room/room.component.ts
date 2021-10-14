@@ -42,31 +42,35 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   startListeners() {
     this.socketService.updateFiles().subscribe(res => {
-      console.log('updafiles');
       if (this.noFiles) {
         this.socketService.stopFirstUpdateFiles();
-        this.noFiles = false;
         this.files = res;
+        this.noFiles = false;
       } else {
-        console.log('updatefiles', res);
-        res.forEach(outFile => {
-          let localFile = this.files.find(f => f.name == outFile.name);
+        res.forEach(inComingFile => {
+          let localFile = this.files.find(f => f.name == inComingFile.name);
           if (localFile == undefined) {
-            this.files.push(outFile);
-          } else {
-            if (localFile['perc'] != undefined) {
-              localFile.path = outFile.path;
-              delete localFile['perc'];
-            }
+            this.files.push(inComingFile);
+          } else if (localFile['perc'] != undefined) {
+            localFile.path = inComingFile.path;
+            delete localFile['perc'];
           }
         });
 
         this.files.forEach((localFile, index) => {
-          let outFile = res.findIndex(f => f.name == localFile.name);
-          if (outFile == -1 && localFile['perc'] == undefined) {
+          let inComingFile = res.findIndex(f => f.name == localFile.name);
+          if (inComingFile == -1 && localFile['perc'] == undefined) {
             this.files.splice(index, 1);
           }
         });
+      }
+    });
+
+    this.socketService.updateFileState().subscribe(res => {
+      
+      let i = this.files.findIndex(f => f.name == res.name);
+      if (i > -1 && this.files[i]['proc'] != undefined) {
+        this.files[i].proc = Math.trunc( ( res.index / this.files[i].procLimit ) * 100 );
       }
     });
   }
@@ -75,33 +79,45 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   errorLoadingImg(event) { console.log(event); }
 
+  openFile(file) {
+    file['open'] = 1;
+  }
+
+  closeFile(file) {
+    if (file['open'] != undefined) {
+      file['open'] = --file['open'];
+      if (file['open'] < 0) { delete file['open']; }
+    }
+  }
+
   uploadFile(event) {
 
-    let file = {
+    let fileInfo = {
       token: this.room.token,
       name: event.name,
       size: event.size,
     }
 
-    this.roomService.canUploadFile(file).subscribe(res => {
+    this.roomService.canUploadFile(fileInfo).subscribe(res => {
       if (res.res == 'ok') {
         const reader = new FileReader();
         reader.readAsDataURL(event);
         reader.onload = () => {
+
           let base64 = <string>reader.result;
-          let data = {
-            token: this.room.token,
-            name: event.name,
-            base64: '',
-            index: 0
-          }
-
           const stringLength = 1024;
-
+          
           let procLimit = base64.length / stringLength - 1;
           if (Math.trunc(procLimit) != procLimit) { procLimit = Math.trunc(procLimit) + 1; }
 
-          let fileOnArray = {
+          let data = {
+            token: this.room.token,
+            name: event.name,
+            payload: '',
+            index: 0
+          }
+
+          let fileControl = {
             name: event.name,
             path: base64,
             perc: 0.0,
@@ -109,21 +125,25 @@ export class RoomComponent implements OnInit, OnDestroy {
             procLimit: procLimit
           }
 
-          this.files.push(fileOnArray);
+          this.files.push(fileControl);
 
           let i = 0;
-          while (i < fileOnArray.procLimit) {
+          while (i < fileControl.procLimit) {
             let start = i * stringLength;
             let end = start + stringLength;
-            data.base64 = base64.substring(i * stringLength, end);
+            data.payload = base64.substring(i * stringLength, end);
             data.index = i++;
             this.socketService.uploadFile(data);
+
+            fileControl.perc = Math.trunc( ( i / fileControl.procLimit ) * 100 );
           }
-          data.base64 = base64.substring(i * stringLength);
+          data.payload = base64.substring(i * stringLength);
           data.index = i++;
           this.socketService.uploadFile(data);
 
-          data.base64 = 'break';
+          fileControl.perc = Math.trunc( ( i / fileControl.procLimit ) * 100 );
+
+          data.payload = 'break';
           data.index = -1;
           this.socketService.uploadFile(data);
         }

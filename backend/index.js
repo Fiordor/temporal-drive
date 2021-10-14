@@ -41,8 +41,8 @@ app.post('/', api);
  */
 io.on('connection', (socket) => {
 
-	const SAVE_TIME = 5;
 	let idInterval = null;
+	let filesBuff = [];
 
 	const updateFiles = (token) => {
 		let sql = `SELECT name FROM box WHERE token = '${token}' AND dateCreate > 0;`;
@@ -99,55 +99,41 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('upload-file', (data) => {
-		if (data.index == -1 && data.base64 == 'break') {
 
-			console.log(`[${new Date().toISOString()}] upload-file ${data.index}`);
-			let sql1 =
-				`SELECT *
-				FROM file_buff
-				WHERE token LIKE '${data.token}' AND name LIKE '${data.name}'
-				ORDER By i;`
-			connection.query(sql1, (err, rows, fields) => {
+		if (data.index == -1 && data.payload == 'break') {
+
+			let id = data.token + data.name;
+			let base64 = filesBuff[id].join('');
+			delete filesBuff[id];
+			base64 = base64.substring(base64.indexOf(',') + 1);
+
+			console.log(`[${new Date().toISOString()}] upload-file ${id}`);
+
+			fs.writeFile(path.join(__dirname, PUBLIC, data.token, data.name), base64, 'base64', (err) => {
 				if (err) { console.log(err); }
-				else { console.log(`upload-file ${rows.length}`); }
+				else {
+					console.log(`upload-file writeFile ${id}`);
 
-				let base64 = '';
-				rows.forEach(row => { base64 += row.data; });
-				base64 = base64.substring(base64.indexOf(',') + 1);
-
-				fs.writeFile(path.join(__dirname, PUBLIC, data.token, data.name), base64, 'base64', (err) => {
-					if (err) { console.log(err); }
-					else {
-						console.log(`upload-file writeFile`);
-
-						let sql3 =
-							`UPDATE box SET dateCreate = ${Date.now()}
-					WHERE id LIKE '${data.token}${data.name}';`
-						connection.query(sql3, (err, rows, fields) => {
-							if (err) { console.log(err); }
-							else { updateFiles(data.token); }
-						});
-					}
-				});
-
-				let sql2 =
-					`DELETE FROM file_buff
-			WHERE token LIKE '${data.token}' AND name LIKE '${data.name}';`
-				connection.query(sql2, (err, rows, fields) => { if (err) console.log(err); });
+					let sql3 = `UPDATE box SET dateCreate = ${Date.now()} WHERE id LIKE '${data.token}${data.name}';`
+					connection.query(sql3, (err, rows, fields) => {
+						if (err) { console.log(err); }
+						else { updateFiles(data.token); }
+					});
+				}
 			});
 
 		} else {
-			let sql = `INSERT INTO file_buff
-				VALUES ('${data.token}', '${data.name}', '${data.index}', '${data.base64}');`
 
-			//console.log(`[${new Date().toISOString()}] upload-file ${data.index}`);
+			console.log(`[${new Date().toISOString()}] upload-file ${data.index} ${data.payload.length}`);
 
-			connection.query(sql, (err, rows, fields) => {
-				if (err) { console.log(err); }
-				else {
-					console.log(`[${new Date().toISOString()}] insert-file ${data.index}`);
-				}
-			});
+			let id = data.token + data.name;
+			let index = data.index;
+			if (filesBuff[id] == undefined) { filesBuff[id] = []; }
+			filesBuff[id][index] = data.payload;
+
+			delete data.payload;
+
+			socket.emit('update-file-state', data);
 		}
 	});
 

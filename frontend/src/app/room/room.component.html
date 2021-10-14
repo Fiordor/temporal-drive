@@ -9,12 +9,29 @@
 <div class="room-content">
   <div class="img-box" *ngFor="let file of files">
     <div *ngIf="file.perc == undefined" class="img-delete" (click)="deleteFile(file)">
-      <mat-icon aria-hidden="false" aria-label="delete">delete</mat-icon>    
+      <mat-icon aria-hidden="false" aria-label="delete">delete</mat-icon>
     </div>
-    <img [src]="file.path" (error)="errorLoadingImg($event)">
-    <div *ngIf="file.perc != undefined" class="img-spinner"></div>
-    <div *ngIf="file.perc != undefined" class="img-perc">
-      {{ file.perc == 100 ? 'Esperando respuesta' : file.perc + '%' }}
+    <div class="img-prev" [ngClass]="{ 'img-prev-open' : file.open != undefined }" (click)="closeFile(file)">
+      <div class="img-close" [ngClass]="{ 'img-close-open' : file.open != undefined }" (click)="closeFile(file)">
+        <mat-icon aria-hidden="false" aria-label="close">close</mat-icon>
+      </div>
+      <img class="img-main" [src]="file.path" (error)="errorLoadingImg($event)" (click)="openFile(file)">
+    </div>
+    <div *ngIf="file.perc != undefined" class="img-progress">
+      <div class="img-prog-bar">
+        <div class="img-prog-fill" [style.width.%]="file.perc"></div>
+        <div class="img-prog-label">
+          <div class="img-prog-label-static">Subiendo...</div>
+          <div class="img-prog-label-prog">{{file.perc}}%</div>
+        </div>
+      </div>
+      <div class="img-prog-bar">
+        <div class="img-prog-fill" [style.width.%]="file.proc"></div>
+        <div class="img-prog-label">
+          <div class="img-prog-label-static">Procesando...</div>
+          <div class="img-prog-label-prog">{{file.proc}}%</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
