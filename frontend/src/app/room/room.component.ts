@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from 'src/service/room/room.service';
 import { SocketService } from 'src/service/socket/socket.service';
 
+import { saveAs } from 'file-saver';
+
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
@@ -67,10 +69,10 @@ export class RoomComponent implements OnInit, OnDestroy {
     });
 
     this.socketService.updateFileState().subscribe(res => {
-      
+
       let i = this.files.findIndex(f => f.name == res.name);
       if (i > -1 && this.files[i]['proc'] != undefined) {
-        this.files[i].proc = Math.trunc( ( res.index / this.files[i].procLimit ) * 100 );
+        this.files[i].proc = Math.trunc((res.index / this.files[i].procLimit) * 100);
       }
     });
   }
@@ -90,6 +92,11 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
   }
 
+  downloadFile(file) {
+    async function save(file:any) { saveAs(file.path, file.name); }
+    save(file);
+  }
+
   uploadFile(event) {
 
     let fileInfo = {
@@ -106,7 +113,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
           let base64 = <string>reader.result;
           const stringLength = 1024;
-          
+
           let procLimit = base64.length / stringLength - 1;
           if (Math.trunc(procLimit) != procLimit) { procLimit = Math.trunc(procLimit) + 1; }
 
@@ -135,13 +142,13 @@ export class RoomComponent implements OnInit, OnDestroy {
             data.index = i++;
             this.socketService.uploadFile(data);
 
-            fileControl.perc = Math.trunc( ( i / fileControl.procLimit ) * 100 );
+            fileControl.perc = Math.trunc((i / fileControl.procLimit) * 100);
           }
           data.payload = base64.substring(i * stringLength);
           data.index = i++;
           this.socketService.uploadFile(data);
 
-          fileControl.perc = Math.trunc( ( i / fileControl.procLimit ) * 100 );
+          fileControl.perc = Math.trunc((i / fileControl.procLimit) * 100);
 
           data.payload = 'break';
           data.index = -1;

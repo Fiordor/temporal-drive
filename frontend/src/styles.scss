@@ -86,6 +86,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .nav-left {
   display: flex;
   flex-direction: row;
+  font-size: 25px;
 }
 
 .nav-left .nav-button {
@@ -188,6 +189,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   z-index: 10;
 }
 
+.img-prev-open:hover {
+  cursor: pointer;
+}
+
 .img-main {
   max-width: 100%;
   max-height: 100%;
@@ -199,37 +204,39 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   cursor: pointer;
 }
 
-.img-close {
-  @extend .add-button;
-  background-color: $color-2-opacity;
-  position: fixed !important;
-  top: 0;
-  right: 0;
+.img-main-open:hover {
+  cursor: auto;
 }
 
-.img-close:hover {
-  background-color: $color-2;
-}
-
-.img-delete {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  padding: 5px;
+.img-button {
   background-color: $color-2-opacity;
   transition: $button-transition;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
-  justify-items: center;
+  justify-content: center;
   align-items: center;
 
   z-index: 2;
 }
 
-.img-delete:hover {
+.img-button:hover {
   background-color: $color-2;
   cursor: pointer;
+}
+
+.img-button-delete {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.img-button-download {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
 }
 
 .img-progress {

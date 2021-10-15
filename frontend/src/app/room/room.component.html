@@ -1,5 +1,5 @@
 <div class="nav">
-  <div class="nav-left"></div>
+  <div class="nav-left">{{room.token}}</div>
   <div class="nav-right">
     <div class="nav-button" (click)="goTo('/')">
       <mat-icon aria-hidden="false" aria-label="logout">logout</mat-icon>
@@ -8,14 +8,15 @@
 </div>
 <div class="room-content">
   <div class="img-box" *ngFor="let file of files">
-    <div *ngIf="file.perc == undefined" class="img-delete" (click)="deleteFile(file)">
+    <div *ngIf="file.perc == undefined" class="img-button img-button-delete" (click)="deleteFile(file)">
       <mat-icon aria-hidden="false" aria-label="delete">delete</mat-icon>
     </div>
+    <div *ngIf="file.perc == undefined" class="img-button img-button-download" (click)="downloadFile(file)">
+      <mat-icon aria-hidden="false" aria-label="download">download</mat-icon>
+    </div>
     <div class="img-prev" [ngClass]="{ 'img-prev-open' : file.open != undefined }" (click)="closeFile(file)">
-      <div class="img-close" [ngClass]="{ 'img-close-open' : file.open != undefined }" (click)="closeFile(file)">
-        <mat-icon aria-hidden="false" aria-label="close">close</mat-icon>
-      </div>
-      <img class="img-main" [src]="file.path" (error)="errorLoadingImg($event)" (click)="openFile(file)">
+      <img class="img-main" [ngClass]="{ 'img-main-open' : file.open != undefined }" [src]="file.path"
+        (error)="errorLoadingImg($event)" (click)="openFile(file)">
     </div>
     <div *ngIf="file.perc != undefined" class="img-progress">
       <div class="img-prog-bar">
