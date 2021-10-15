@@ -28,9 +28,8 @@ export class RoomComponent implements OnInit, OnDestroy {
       this.roomService.getRoom(params['id']).subscribe(res => {
         if (res.res == 'ok') {
           this.room = res.message;
-          this.socketService.connectHasRoom(this.room.token).subscribe(() => {
-            this.startListeners();
-          });
+          this.socketService.connectHasRoom(this.room.token)
+            .subscribe(() => { this.startListeners(); });
         } else {
           this.goTo('/');
         }
@@ -44,42 +43,21 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   startListeners() {
     this.socketService.updateFiles().subscribe(res => {
-      if (this.noFiles) {
-        this.socketService.stopFirstUpdateFiles();
-        this.files = res;
-        this.noFiles = false;
-      } else {
-        res.forEach(inComingFile => {
-          let localFile = this.files.find(f => f.name == inComingFile.name);
-          if (localFile == undefined) {
-            this.files.push(inComingFile);
-          } else if (localFile['perc'] != undefined) {
-            localFile.path = inComingFile.path;
-            delete localFile['perc'];
-          }
-        });
-
-        this.files.forEach((localFile, index) => {
-          let inComingFile = res.findIndex(f => f.name == localFile.name);
-          if (inComingFile == -1 && localFile['perc'] == undefined) {
-            this.files.splice(index, 1);
-          }
-        });
-      }
+      this.listenerUpdatesFiles(res);
     });
 
     this.socketService.updateFileState().subscribe(res => {
-
-      let i = this.files.findIndex(f => f.name == res.name);
-      if (i > -1 && this.files[i]['proc'] != undefined) {
-        this.files[i].proc = Math.trunc((res.index / this.files[i].procLimit) * 100);
-      }
+      this.listenerUpdateFileState(res);
     });
   }
 
-  goTo(path) { this.router.navigate([path]); }
+  goTo(path) {
+    this.router.navigate([path]);
+  }
 
-  errorLoadingImg(event) { console.log(event); }
+  errorLoadingImg(event) {
+    console.log(event);
+  }
 
   openFile(file) {
     file['open'] = 1;
@@ -93,7 +71,9 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   downloadFile(file) {
-    async function save(file:any) { saveAs(file.path, file.name); }
+    async function save(file:any) {
+      saveAs(file.path, file.name);
+    }
     save(file);
   }
 
@@ -161,5 +141,38 @@ export class RoomComponent implements OnInit, OnDestroy {
   deleteFile(file) {
     this.files.splice(this.files.findIndex(f => f.name == file.name), 1);
     this.socketService.deleteFile({ token: this.room.token, name: file.name });
+  }
+
+  private listenerUpdatesFiles(inComingFiles) {
+    if (this.noFiles) {
+      this.socketService.stopFirstUpdateFiles();
+      this.files = inComingFiles;
+      this.noFiles = false;
+    } else {
+      inComingFiles.forEach(inComingFile => {
+        let localFile = this.files.find(f => f.name == inComingFile.name);
+        if (localFile == undefined) {
+          this.files.push(inComingFile);
+        } else if (localFile['perc'] != undefined) {
+          localFile.path = inComingFile.path;
+          delete localFile['perc'];
+        }
+      });
+
+      this.files.forEach((localFile, index) => {
+        let inComingFile = inComingFiles.findIndex(f => f.name == localFile.name);
+        if (inComingFile == -1 && localFile['perc'] == undefined) {
+          this.files.splice(index, 1);
+        }
+      });
+    }
+  }
+
+  private listenerUpdateFileState(fileToUpdate) {
+    let i = this.files.findIndex(f => f.name == fileToUpdate.name);
+    if (i > -1 && this.files[i]['proc'] != undefined) {
+      let perc = (fileToUpdate.index / this.files[i].procLimit) * 100;
+      this.files[i].proc = Math.trunc(perc);
+    }
   }
 }

@@ -1,5 +1,5 @@
 <div class="room-box">
-  <div class="room-header">
+  <div class="room-box-header">
     <div class="room-number">#{{room.id}}</div>
     <div class="room-token-box">
       <div class="room-token"><input type="text" [(ngModel)]="token"></div>
@@ -10,40 +10,75 @@
   </div>
 
   <div class="room-capacity">
-    <div class="capacity-header">
+    <div class="room-header">
       <div class="room-label">Capacidad</div>
       <div class="line"></div>
-      <div class="room-size"><input type="text" [(ngModel)]="capacity" readonly></div>
-      <div class="room-label">B</div>
+      <div class="room-data">
+        <input class="capacity-data" type="text" [(ngModel)]="capacity" readonly>
+        <div class="room-label">MB</div>
+      </div>
     </div>
     <div class="capacity-buttons">
-      <div class="capacity-button" (click)="setCapacity(128)">128 MB</div>
-      <div class="capacity-button" (click)="setCapacity(256)">256 MB</div>
-      <div class="capacity-button" (click)="setCapacity(384)">384 MB</div>
-      <div class="capacity-button" (click)="setCapacity(512)">512 MB</div>
-    </div>
-    <div class="capacity-buttons">
-      <div class="capacity-button" (click)="setCapacity(640)">640 MB</div>
-      <div class="capacity-button" (click)="setCapacity(768)">768 MB</div>
-      <div class="capacity-button" (click)="setCapacity(896)">896 MB</div>
-      <div class="capacity-button" (click)="setCapacity(1024)">1024 MB</div>
+      <div class="grid-button" (click)="setCapacity(128)">128</div>
+      <div class="grid-button" (click)="setCapacity(256)">256</div>
+      <div class="grid-button" (click)="setCapacity(384)">384</div>
+      <div class="grid-button" (click)="setCapacity(512)">512</div>
+      <div class="grid-button" (click)="setCapacity(640)">640</div>
+      <div class="grid-button" (click)="setCapacity(768)">768</div>
+      <div class="grid-button" (click)="setCapacity(896)">896</div>
+      <div class="grid-button" (click)="setCapacity(1024)">1024</div>
     </div>
   </div>
 
   <div class="room-time">
-    <div class="time-header">
-      <div class="time-label">Apagar dentro de</div>
+    <div class="room-header">
+      <div class="room-label">Apagar dentro de</div>
       <div class="line"></div>
-      <div class="time-days">
-        <input type="number" [(ngModel)]="days" placeholder="Días">
+      <div class="room-data">
+        <input class="time-days" type="text" [(ngModel)]="days" placeholder="Días">
+        <input class="time-hours" type="text" [(ngModel)]="time" placeholder="hh:mm">
       </div>
-      <div class="time-hours">
-        <input type="text" [(ngModel)]="time" placeholder="hh:mm">
-      </div>
+    </div>
+    <div class="time-buttons">
+      <div class="grid-button">00:05</div>
+      <div class="grid-button">00:10</div>
+      <div class="grid-button">00:15</div>
+      <div class="grid-button">00:30</div>
+      <div class="grid-button">00:45</div>
+      <div class="grid-button">01:00</div>
+      <div class="grid-button">02:00</div>
+      <div class="grid-button">04:00</div>
+      <div class="grid-button">08:00</div>
+      <div class="grid-button">16:00</div>
+      <div class="grid-button">1d</div>
+      <div class="grid-button">2d</div>
+      <div class="grid-button">7d</div>
+      <div class="grid-button">14d</div>
+      <div class="grid-button">30d</div>
     </div>
   </div>
 
   <div class="room-status">
-    <div class="status-button" (click)="changeStatus()" >{{ room.openRoom ? 'ON' : 'OFF' }}</div>
+    <div class="status-header">
+      <div class="room-label">Estado de la sala</div>
+      <div class="line"></div>
+    </div>
+    <div class="content-status">
+      <div class="status-info">
+        <div class="status-info-label">
+          <div>Inicio de la sala</div>
+          <div>x</div>
+        </div>
+        <div class="status-info-label">
+          <div>Apagado programado para</div>
+          <div>x</div>
+        </div>
+        <div class="status-info-label">
+          <div>Memoria ocupada</div>
+          <div>X</div>
+        </div>
+      </div>
+      <div class="status-button" (click)="changeStatus()" >ON</div>
+    </div>
   </div>
 </div>
