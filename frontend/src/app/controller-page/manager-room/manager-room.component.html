@@ -3,7 +3,7 @@
     <div class="room-number">#{{room.id}}</div>
     <div class="room-token-box">
       <div class="room-token"><input type="text" [(ngModel)]="token"></div>
-      <div class="room-generator">
+      <div class="room-generator" (click)="generateRandomToken()">
         <mat-icon aria-hidden="false" aria-label="generating_tokens">generating_tokens</mat-icon>
       </div>
     </div>
@@ -19,14 +19,7 @@
       </div>
     </div>
     <div class="capacity-buttons">
-      <div class="grid-button" (click)="setCapacity(128)">128</div>
-      <div class="grid-button" (click)="setCapacity(256)">256</div>
-      <div class="grid-button" (click)="setCapacity(384)">384</div>
-      <div class="grid-button" (click)="setCapacity(512)">512</div>
-      <div class="grid-button" (click)="setCapacity(640)">640</div>
-      <div class="grid-button" (click)="setCapacity(768)">768</div>
-      <div class="grid-button" (click)="setCapacity(896)">896</div>
-      <div class="grid-button" (click)="setCapacity(1024)">1024</div>
+      <div *ngFor="let capacity of CAPACITY_AVAILABLES" class="grid-button" (click)="setCapacity(capacity)">{{capacity}}</div>
     </div>
   </div>
 
@@ -35,26 +28,13 @@
       <div class="room-label">Apagar dentro de</div>
       <div class="line"></div>
       <div class="room-data">
-        <input class="time-days" type="text" [(ngModel)]="days" placeholder="Días">
-        <input class="time-hours" type="text" [(ngModel)]="time" placeholder="hh:mm">
+        <input class="time-days" type="text" [(ngModel)]="days" placeholder="Días" readonly>
+        <input class="time-hours" type="text" [(ngModel)]="time" placeholder="hh:mm" readonly>
       </div>
     </div>
     <div class="time-buttons">
-      <div class="grid-button">00:05</div>
-      <div class="grid-button">00:10</div>
-      <div class="grid-button">00:15</div>
-      <div class="grid-button">00:30</div>
-      <div class="grid-button">00:45</div>
-      <div class="grid-button">01:00</div>
-      <div class="grid-button">02:00</div>
-      <div class="grid-button">04:00</div>
-      <div class="grid-button">08:00</div>
-      <div class="grid-button">16:00</div>
-      <div class="grid-button">1d</div>
-      <div class="grid-button">2d</div>
-      <div class="grid-button">7d</div>
-      <div class="grid-button">14d</div>
-      <div class="grid-button">30d</div>
+      <div *ngFor="let time of TIME_AVAILABLES" class="grid-button" (click)="setTime(time)">{{time}}</div>
+      <div *ngFor="let day of DAY_AVAILABLES" class="grid-button" (click)="setDay(day)">{{day}}d</div>
     </div>
   </div>
 
@@ -67,18 +47,18 @@
       <div class="status-info">
         <div class="status-info-label">
           <div>Inicio de la sala</div>
-          <div>x</div>
+          <div>-</div>
         </div>
         <div class="status-info-label">
           <div>Apagado programado para</div>
-          <div>x</div>
+          <div>-</div>
         </div>
         <div class="status-info-label">
           <div>Memoria ocupada</div>
-          <div>X</div>
+          <div>-</div>
         </div>
       </div>
-      <div class="status-button" (click)="changeStatus()" >ON</div>
+      <div class="status-button" (click)="changeStatus()">ON</div>
     </div>
   </div>
 </div>

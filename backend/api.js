@@ -17,7 +17,7 @@ var connection = mysql.createConnection({
 connection.connect();
 
 /* GET home page. */
-router.post('/', function(req, res, next) {
+router.post('/', function (req, res, next) {
 
   if (req.body['op'] == undefined) {
     res.send({ res: 'err', message: 'no op' });
@@ -26,12 +26,13 @@ router.post('/', function(req, res, next) {
 
   console.log(`[${new Date().toISOString()}] ${req.body.op}`);
 
-  switch(req.body.op) {
-    case 'getFiles' : getFiles(req, res); break;
-    case 'getRoom' : getRoom(req, res); break;
-    case 'getRooms' : getRooms(req, res); break;
-    case 'roomOnOff' : roomOnOff(req, res); break;
-    case 'canUploadFile' : canUploadFile(req, res); break;
+  switch (req.body.op) {
+    case 'getFiles': getFiles(req, res); break;
+    case 'getRoom': getRoom(req, res); break;
+    case 'getRooms': getRooms(req, res); break;
+    case 'roomOnOff': roomOnOff(req, res); break;
+    case 'roomOff': roomOff(req, res); break;
+    case 'canUploadFile': canUploadFile(req, res); break;
   }
 });
 
@@ -46,7 +47,7 @@ function getFiles(req, res) {
     WHERE token = '${req.body.token}' AND dateCreate > 0;`;
 
   connection.query(sql, function (err, rows, fields) {
-    if (err) { res.send( er(err) ); }
+    if (err) { res.send(er(err)); }
     else {
       let files = [];
       rows.forEach(row => {
@@ -56,9 +57,9 @@ function getFiles(req, res) {
         }
         files.push(file);
       });
-      res.send( ok(files) );
+      res.send(ok(files));
     }
-  }); 
+  });
 }
 
 /**
@@ -68,15 +69,15 @@ function getFiles(req, res) {
 function getRoom(req, res) {
 
   let sql =
-  `SELECT *
+    `SELECT *
   FROM room
   WHERE token = '${req.body.token}' AND openRoom = 1;`;
 
   connection.query(sql, function (err, rows, fields) {
     if (err) throw err;
 
-    res.send( rows.length == 0 ? er('token not exists') : ok(rows[0]) );
-  });  
+    res.send(rows.length == 0 ? er('token not exists') : ok(rows[0]));
+  });
 }
 
 /**
@@ -86,7 +87,7 @@ function getRoom(req, res) {
 function getRooms(req, res) {
   connection.query('SELECT * FROM room', function (err, rows, fields) {
     if (err) throw err;
-    res.send( ok(rows) );
+    res.send(ok(rows));
   });
 }
 
@@ -112,7 +113,7 @@ function roomOnOff(req, res) {
   let busy_perc = 0;
 
   let sql =
-  `UPDATE room
+    `UPDATE room
   SET token = '${token}', capacity = ${capacity},
     dateOn = ${dateOn}, dateOff = ${dateOff},
     busy = ${busy}, busy_perc = ${busy_perc}
@@ -120,7 +121,34 @@ function roomOnOff(req, res) {
 
   connection.query(sql, function (err, rows, fields) {
     if (err) throw err;
-    res.send( ok(rows) );
+    res.send(ok(rows));
+  });
+}
+
+/**
+ * Elimita los datos de una sala y la deja a 0.
+ * body.room = { id: id de la room, token: token de la room }
+ */
+function roomOff(req, res) {
+
+  let id = req.body.room.id;
+  let token = req.body.room.token;
+
+  fs.rmdir(path.join(__dirname, PUBLIC, token), { recursive: true, force: true }, (err) => {
+    if (err) { console.log(err); }
+  });
+
+  let sql1 = `DELETE FROM box WHERE token LIKE '${token}';`
+  connection.query(sql1, (err, rows, fields) => {
+    if (err) { console.log(err); }
+  });
+
+  let sql2 = `UPDATE room
+    SET token = '', capacity = 0, dateOn = 0, dateOff = 0, openRoom = 0, busy = 0, busy_perc = 0
+    WHERE id = ${id};`
+  connection.query(sql2, (err, rows, fields) => {
+    if (err) { console.log(err); }
+    else { res.send(ok('')) }
   });
 }
 
@@ -150,7 +178,7 @@ function canUploadFile(req, res) {
       if (err) { res.send(er(err)); }
       else { res.send(ok(rows)); }
     });
-    
+
   } else {
     res.send(er('room path not exists'));
   }

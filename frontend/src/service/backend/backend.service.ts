@@ -28,4 +28,8 @@ export class BackendService {
   roomOnOff(room) {
     return this.sendPost({ op: 'roomOnOff', room: room });
   }
+
+  roomOff(room) {
+    return this.sendPost({ op: 'roomOff', room: room });
+  }
 }
