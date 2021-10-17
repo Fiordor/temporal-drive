@@ -12,16 +12,23 @@ export class ManagerRoomComponent implements OnInit {
   readonly TIME_AVAILABLES = [ '00:05', '00:10', '00:15', '00:30', '00:45', '01:00', '02:00', '04:00', '08:00', '16:00' ];
   readonly DAY_AVAILABLES = [ '1', '2', '7', '14', '30' ];
 
-  @Input() room: any = undefined;
+  @Input() inputRoom: number = null;
+  room: any = { id: 0, openRoom: 0 };
 
   token: string = '';
-  capacity: number = null;
-  days: string = '';
-  time: string = '';
+  capacity: number = 0;
+  days: string = '0';
+  time: string = '00:00';
+
+  dateOn: string = '-';
+  dateOff: string = '-';
 
   constructor(private backendService: BackendService) { }
 
   ngOnInit(): void {
+    this.backendService.getRoom(this.inputRoom).subscribe(res => {
+      if (res.res == 'ok') { this.setRoomOnLocal(res.message); }
+    });
   }
 
   generateRandomToken() {
@@ -41,11 +48,11 @@ export class ManagerRoomComponent implements OnInit {
 
   setDay(days) {
     this.days = days;
-    this.time = '';
+    this.time = '00:00';
   }
 
   setTime(time) {
-    this.days = '';
+    this.days = '0';
     this.time = time;
   }
 
@@ -57,24 +64,42 @@ export class ManagerRoomComponent implements OnInit {
     }
   }
 
+  private setRoomOnLocal(room) {
+
+    this.room = room;
+    this.token = room.token;
+    this.capacity = room.capacity / (1024 * 1024);
+    
+    if (room.openRoom) {
+      this.dateOn = new Date(room.dateOn).toUTCString();
+      this.dateOff = new Date(room.dateOff).toUTCString();
+    } else {
+      this.dateOn = '-';
+      this.dateOff = '-';
+    }
+  }
+
   private powerOnRoom() {
-    /*
+
+    if (this.room.tokens.find(t => t == this.token) != undefined) { return; }
+    if (this.capacity == 0) { return; }
+    if (this.days.length == 0 && this.time.length == 0) { return; }
+
     let millis = 0;
-    millis = parseInt(this.time.split(':')[1]) * 60 * 1000;
     millis += parseInt(this.time.split(':')[0]) * 60 * 60 * 1000;
-    millis += this.days * 24 * 60 * 60 * 1000;
+    millis += parseInt(this.time.split(':')[1]) * 60 * 1000;
+    millis += parseInt(this.days) * 24 * 60 * 60 * 1000;
 
     let room = {
       id: this.room.id,
       token: this.token,
-      capacity: this.capacity * 1048576,
-      timer: millis
+      capacity: this.capacity,
+      dateOff: millis
     }
 
-    this.backendService.roomOnOff(room).subscribe(res => {
-      console.log(res);
+    this.backendService.roomOn(room).subscribe(res => {
+      if (res.res == 'ok') { this.setRoomOnLocal(res.message); }
     });
-    */
   }
 
   private powerOffRoom() {
@@ -85,8 +110,7 @@ export class ManagerRoomComponent implements OnInit {
     }
 
     this.backendService.roomOff(room).subscribe(res => {
-      console.log(res);
+      if (res.res == 'ok') { this.setRoomOnLocal(res.message); }
     });
-
   }
 }

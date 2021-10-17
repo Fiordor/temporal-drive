@@ -21,12 +21,16 @@ export class BackendService {
     .pipe( map(res => { return <Res>res;}) );
   }
 
+  getRoom(room) {
+    return this.sendPost({ op: 'getRoom', room: room });
+  }
+
   getRooms() {
     return this.sendPost({ op: 'getRooms' });
   }
 
-  roomOnOff(room) {
-    return this.sendPost({ op: 'roomOnOff', room: room });
+  roomOn(room) {
+    return this.sendPost({ op: 'roomOn', room: room });
   }
 
   roomOff(room) {

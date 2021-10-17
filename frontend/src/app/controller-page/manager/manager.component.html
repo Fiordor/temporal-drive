@@ -21,5 +21,5 @@
   <app-manager-home [rooms]="rooms" (openRoom)="openRoom($event)"></app-manager-home>
 </div>
 <div *ngIf="selectedRoom != undefined">
-  <app-manager-room [room]="selectedRoom" ></app-manager-room>
+  <app-manager-room [inputRoom]="selectedRoom.id" ></app-manager-room>
 </div>

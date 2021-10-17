@@ -30,7 +30,7 @@ router.post('/', function (req, res, next) {
     case 'getFiles': getFiles(req, res); break;
     case 'getRoom': getRoom(req, res); break;
     case 'getRooms': getRooms(req, res); break;
-    case 'roomOnOff': roomOnOff(req, res); break;
+    case 'roomOn': roomOn(req, res); break;
     case 'roomOff': roomOff(req, res); break;
     case 'canUploadFile': canUploadFile(req, res); break;
   }
@@ -68,15 +68,27 @@ function getFiles(req, res) {
  */
 function getRoom(req, res) {
 
-  let sql =
-    `SELECT *
-  FROM room
-  WHERE token = '${req.body.token}' AND openRoom = 1;`;
+  let sql = `SELECT * FROM room;`;
 
   connection.query(sql, function (err, rows, fields) {
-    if (err) throw err;
+    if (err) { res.send(er(err)); }
+    else {
+      let maxSizeMB = 0;
+      let tokens = [];
+      let room = {};
+      rows.forEach(row => {
+        if (row.id == req.body.room) { room = row; }
+        if (row.openRoom) {
+          if (row.token.length > 0) { tokens.push(row.token); }
+          maxSizeMB += row.capacity / (1024 * 1024);
+        }
+      });
 
-    res.send(rows.length == 0 ? er('token not exists') : ok(rows[0]));
+      room['tokens'] = tokens;
+      room['maxSizeMB'] = maxSizeMB;
+
+      res.send(ok(room));
+    }
   });
 }
 
@@ -97,31 +109,40 @@ function getRooms(req, res) {
  *  id: id de la room,
  *  token: token de la room,
  *  capacity: capacidad en Bytes,
- *  timer: en cuanto se apaga la sala en millis
+ *  dateOff: en cuanto se apaga la sala en millis
  * }
  */
-function roomOnOff(req, res) {
+function roomOn(req, res) {
 
   let room = req.body.room;
 
   let id = room.id;
   let token = room.token;
-  let capacity = room.capacity;
+  let capacity = room.capacity * 1024 * 1024;
   let dateOn = Date.now();
-  let dateOff = Date.now() + room.timer;
-  let busy = 0;
-  let busy_perc = 0;
+  let dateOff = Date.now() + room.dateOff;
 
   let sql =
     `UPDATE room
-  SET token = '${token}', capacity = ${capacity},
+    SET token = '${token}', capacity = ${capacity},
     dateOn = ${dateOn}, dateOff = ${dateOff},
-    busy = ${busy}, busy_perc = ${busy_perc}
-  WHERE id = ${id};`
+    openRoom = 1, busy = 0, busy_perc = 0
+    WHERE id = ${id};`
 
-  connection.query(sql, function (err, rows, fields) {
-    if (err) throw err;
-    res.send(ok(rows));
+  let localPath = path.join(__dirname, PUBLIC, token);
+  if (!fs.existsSync(localPath)) {
+    fs.mkdir(localPath, (err) => { if (err) { console.log(err); } });
+  }
+
+  connection.query(sql, (err, rows, fields) => {
+    if (err) { res.send(er(err)); }
+    else {
+      let sql1 = `SELECT * FROM room WHERE id = ${id};`;
+      connection.query(sql1, (err, rows, fields) => {
+        if (err) { res.send(er(err)); }
+        else { res.send(ok(rows[0])); }
+      });
+    }
   });
 }
 
@@ -134,7 +155,10 @@ function roomOff(req, res) {
   let id = req.body.room.id;
   let token = req.body.room.token;
 
-  fs.rmdir(path.join(__dirname, PUBLIC, token), { recursive: true, force: true }, (err) => {
+  let localPath = path.join(__dirname, PUBLIC, token);
+  let options = { recursive: true, force: true };
+
+  fs.rmdir(localPath, options, (err) => {
     if (err) { console.log(err); }
   });
 
@@ -148,7 +172,10 @@ function roomOff(req, res) {
     WHERE id = ${id};`
   connection.query(sql2, (err, rows, fields) => {
     if (err) { console.log(err); }
-    else { res.send(ok('')) }
+    else {
+      req.body['room'] = id;
+      getRoom(req, res);
+    }
   });
 }
 

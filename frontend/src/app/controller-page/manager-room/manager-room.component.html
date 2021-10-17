@@ -19,7 +19,8 @@
       </div>
     </div>
     <div class="capacity-buttons">
-      <div *ngFor="let capacity of CAPACITY_AVAILABLES" class="grid-button" (click)="setCapacity(capacity)">{{capacity}}</div>
+      <div *ngFor="let capacity of CAPACITY_AVAILABLES" class="grid-button" (click)="setCapacity(capacity)">{{capacity}}
+      </div>
     </div>
   </div>
 
@@ -47,18 +48,20 @@
       <div class="status-info">
         <div class="status-info-label">
           <div>Inicio de la sala</div>
-          <div>-</div>
+          <div>{{dateOn}}</div>
         </div>
         <div class="status-info-label">
           <div>Apagado programado para</div>
-          <div>-</div>
+          <div>{{dateOff}}</div>
         </div>
         <div class="status-info-label">
           <div>Memoria ocupada</div>
           <div>-</div>
         </div>
       </div>
-      <div class="status-button" (click)="changeStatus()">ON</div>
+      <div *ngIf="room.openRoom" class="status-button button-green" (click)="changeStatus()">ON</div>
+      <div *ngIf="!room.openRoom" class="status-button button-red" (click)="changeStatus()">OFF
+      </div>
     </div>
   </div>
 </div>
