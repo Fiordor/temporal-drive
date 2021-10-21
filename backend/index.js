@@ -66,6 +66,7 @@ io.on('connection', (socket) => {
 
 	console.log('connection', socket.id);
 
+	//  join-on-room  ------------------------------------------------------------
 	socket.on('join-on-room', (room) => {
 		console.log(`[${new Date().toISOString()}] join-on-room ${room}`);
 		socket.join(room);
@@ -93,11 +94,13 @@ io.on('connection', (socket) => {
 		}, 1000);
 	});
 
+	//  stop-first-update-files  -------------------------------------------------
 	socket.on('stop-first-update-files', () => {
 		console.log(`[${new Date().toISOString()}] stop-first-update-files`);
 		if (idInterval != null) { clearInterval(idInterval); }
 	});
 
+	//  request-room-info  -------------------------------------------------------
 	socket.on('request-room-info', (room) => {
 
 		let sql = `SELECT * FROM room WHERE token LIKE '${room}'`;
@@ -110,6 +113,32 @@ io.on('connection', (socket) => {
 		});
 	});
 
+	socket.on('can-upload-file', (fileInfo) => {
+
+		const EMIT = 'file-can-be-uploaded';
+		let pathRoom = path.join(__dirname, PUBLIC, fileInfo.token);
+		let response = {
+			yes: false,
+			id: fileInfo.token + fileInfo.name
+		}
+
+		response.yes = fs.existsSync(pathRoom);
+
+		if (response.yes) {
+
+			let sql = `INSERT INTO box
+				VALUES ('${fileInfo.token}${fileInfo.name}', '${fileInfo.token}', '${fileInfo.name}', ${fileInfo.size}, 0);`
+	
+			connection.query(sql, function (err, rows, fields) {
+				response.yes = (err) ? false : true;
+				socket.emit(EMIT, response);
+			});
+		} else {
+			socket.emit(EMIT, response);
+		}
+	});
+
+	//  upload-file  -------------------------------------------------------------
 	socket.on('upload-file', (data) => {
 
 		if (data.index == -1 && data.payload == 'break') {
@@ -149,6 +178,7 @@ io.on('connection', (socket) => {
 		}
 	});
 
+	//  delete-files  ------------------------------------------------------------
 	socket.on('delete-file', (img) => {
 
 		console.log(`[${new Date().toISOString()}] delete-file`);
@@ -166,6 +196,7 @@ io.on('connection', (socket) => {
 		});
 	});
 
+	//  disconnect  --------------------------------------------------------------
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
 	});

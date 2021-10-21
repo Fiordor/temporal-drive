@@ -32,6 +32,10 @@ export class SocketService {
     this.socket.disconnect();
   }
 
+  canUploadFile(fileInfo) {
+    this.socket.emit('can-upload-file', fileInfo);
+  }
+
   /**
    * Sube los datos de la imagen.
    * Cuando el index = -1 y base64 = 'break' indica que ha terminado de subir
@@ -58,6 +62,16 @@ export class SocketService {
 
   stopFirstUpdateFiles() {
     this.socket.emit('stop-first-update-files');
+  }
+
+
+  /**
+   * Escucha cuando un archivo se confirma que se puede subir
+   * 
+   * @returns { yes: boolean, id: toke + fileName }
+   */
+  fileCanBeUploaded() {
+    return this.socket.fromEvent('file-can-be-uploaded').pipe( map( (data) => { return <any>data; } ) );
   }
 
   getRoom() {
