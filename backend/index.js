@@ -117,22 +117,49 @@ io.on('connection', (socket) => {
 
 		const EMIT = 'file-can-be-uploaded';
 		let pathRoom = path.join(__dirname, PUBLIC, fileInfo.token);
-		let response = {
-			yes: false,
-			id: fileInfo.token + fileInfo.name
-		}
+		let response = { yes: false, id: fileInfo.token + fileInfo.name }
+
+		console.log(`[${new Date().toISOString()}] ${EMIT}`);
 
 		response.yes = fs.existsSync(pathRoom);
 
 		if (response.yes) {
 
-			let sql = `INSERT INTO box
-				VALUES ('${fileInfo.token}${fileInfo.name}', '${fileInfo.token}', '${fileInfo.name}', ${fileInfo.size}, 0);`
-	
-			connection.query(sql, function (err, rows, fields) {
-				response.yes = (err) ? false : true;
-				socket.emit(EMIT, response);
-			});
+			let roomInfo = undefined;
+
+			function testBusy() {
+				let sql = `SELECT capacity, busy, busy_perc FROM room WHERE token LIKE '${fileInfo.token}';`;
+				connection.query(sql, function (err, rows, fields) {
+					if (err || rows.length > 1) {
+						return false;
+					} else {
+						roomInfo = rows[0];
+						return true;
+					}
+				});
+			}
+
+			function insertFileIntoDB() {
+				let id = fileInfo.token + fileInfo.name;
+				let newBusy = roomInfo.busy + fileInfo.size;
+				let newPerc = Math.round(newBusy / roomInfo.capacity * 100);
+				let insert = `INSERT INTO box VALUES ('${fileInfo.token}${fileInfo.name}',
+				'${fileInfo.token}', '${fileInfo.name}', ${fileInfo.size}, 0);`
+				let update = `UPDATE room SET busy = ${newBusy}, busy_perc = ${newPerc} WHERE id LIKE '${id}'`;
+
+				connection.query(update, (err, rows, fields) => { });
+
+				connection.query(insert, function (err, rows, fields) {
+					response.yes = (err) ? false : true;
+					socket.emit(EMIT, response);
+				});
+			}
+
+			response.yes = testBusy();
+
+			if (response.yes) { insertFileIntoDB(); }
+			else { socket.emit(EMIT, response); }
+
 		} else {
 			socket.emit(EMIT, response);
 		}

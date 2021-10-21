@@ -8,8 +8,6 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MatIconModule } from '@angular/material/icon'; 
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -19,6 +17,10 @@ import { LoginComponent } from './controller-page/login/login.component';
 import { ManagerComponent } from './controller-page/manager/manager.component';
 import { ManagerHomeComponent } from './controller-page/manager-home/manager-home.component';
 import { ManagerRoomComponent } from './controller-page/manager-room/manager-room.component';
+
+import {MatButtonModule} from '@angular/material/button'; 
+import { MatIconModule } from '@angular/material/icon'; 
+import {MatToolbarModule} from '@angular/material/toolbar'; 
 
 const config: SocketIoConfig = {
   url: environment.socket,
@@ -47,7 +49,9 @@ const config: SocketIoConfig = {
     FormsModule,
     SocketIoModule.forRoot(config),
     BrowserAnimationsModule,
-    MatIconModule
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

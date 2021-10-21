@@ -44,6 +44,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     });
 
     this.socketService.fileCanBeUploaded().subscribe(res => {
+      console.log('ye');
       this.listenerFileCanBeUploaded(res);
     });
 
@@ -106,7 +107,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     delete this.filesWaitingForUpload[response.id];
 
     if (!response.yes) { return; }
-    
+
     const reader = new FileReader();
     reader.readAsDataURL(event);
     reader.onload = () => {

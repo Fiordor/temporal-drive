@@ -1,11 +1,11 @@
-<div class="nav">
-  <div class="nav-left">{{room.token}}</div>
-  <div class="nav-right">
-    <div class="nav-button" (click)="goTo('/')">
-      <mat-icon aria-hidden="false" aria-label="logout">logout</mat-icon>
-    </div>
-  </div>
-</div>
+<mat-toolbar color="primary">
+  <span>{{room.token}}</span>
+  <span class="example-spacer"></span>
+  <button mat-icon-button (click)="goTo('/')">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
 <div class="room-content">
   <div class="img-box" *ngFor="let file of files">
     <div *ngIf="file.perc == undefined" class="img-button img-button-delete" (click)="deleteFile(file)">
@@ -37,8 +37,19 @@
   </div>
 </div>
 
-<label for="input" class="add-button">
+<!--label for="input" class="add-button">
   <mat-icon aria-hidden="false" aria-label="add">add</mat-icon>
-</label>
+</label-->
+<!--label for="input" class="add-button">
+  <button mat-mini-fab color="primary">
+    <mat-icon>add</mat-icon>
+  </button>
+</label-->
+
+<button mat-mini-fab color="primary" class="add-button">
+  <label for="input">
+    <mat-icon>add</mat-icon>
+  </label>
+</button>
 
 <input (change)="uploadFile($event.target.files[0])" type="file" id="input" name="input" style="display:none;">
