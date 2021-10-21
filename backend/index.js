@@ -74,7 +74,7 @@ io.on('connection', (socket) => {
 		idInterval = setInterval(() => {
 			let sql = `SELECT name FROM box WHERE token = '${room}' AND dateCreate > 0;`;
 
-			connection.query(sql, function (err, rows, fields) {
+			connection.query(sql, (err, rows, fields) => {
 				if (err) { console.log(err); }
 				else {
 					let files = [];
@@ -96,6 +96,18 @@ io.on('connection', (socket) => {
 	socket.on('stop-first-update-files', () => {
 		console.log(`[${new Date().toISOString()}] stop-first-update-files`);
 		if (idInterval != null) { clearInterval(idInterval); }
+	});
+
+	socket.on('request-room-info', (room) => {
+
+		let sql = `SELECT * FROM room WHERE token LIKE '${room}'`;
+		connection.query(sql, (err, rows, fields) => {
+			if (err || rows.length > 1) {
+				console.log(err);
+			} else {
+				socket.emit('get-room', rows[0]);
+			}
+		});
 	});
 
 	socket.on('upload-file', (data) => {

@@ -14,7 +14,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   noFiles: boolean = true;
 
-  room: any = undefined;
+  room: any = { token: '' };
   files: any[] = [];
 
   constructor(private route: ActivatedRoute, private roomService: RoomService,
@@ -25,15 +25,11 @@ export class RoomComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this.route.params.subscribe(params => {
-      this.roomService.getRoom(params['id']).subscribe(res => {
-        if (res.res == 'ok') {
-          this.room = res.message;
-          this.socketService.connectHasRoom(this.room.token)
-            .subscribe(() => { this.startListeners(); });
-        } else {
-          this.goTo('/');
-        }
-      })
+      this.socketService.connect().subscribe(() => {
+        this.startListeners();
+        this.socketService.requestRoomInfo(params['id']);
+        this.socketService.joinOnRoom(params['id']);
+      });
     });
   }
 
@@ -42,6 +38,10 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   startListeners() {
+    this.socketService.getRoom().subscribe(res => {
+      this.room = res;
+    });
+
     this.socketService.updateFiles().subscribe(res => {
       this.listenerUpdatesFiles(res);
     });
@@ -82,7 +82,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     let fileInfo = {
       token: this.room.token,
       name: event.name,
-      size: event.size,
+      size: event.size
     }
 
     this.roomService.canUploadFile(fileInfo).subscribe(res => {

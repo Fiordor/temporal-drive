@@ -12,19 +12,20 @@ export class SocketService {
   constructor(private socket: Socket) {
   }
 
-  connectHasRoom(token) {
+  connect() {
 
-    let subject = new Subject<any>()
-
+    let subject = new Subject<any>();
     this.socket.connect();
 
     this.socket.on('connect', () => {
-      this.socket.emit('join-on-room', token);
-      console.log(`connect ${this.socket.ioSocket.id} on ${token}`);
       subject.next();
     });
 
     return subject;
+  }
+
+  joinOnRoom(token) {
+    this.socket.emit('join-on-room', token);
   }
 
   disconnect() {
@@ -42,6 +43,10 @@ export class SocketService {
     this.socket.emit('upload-file', data);
   }
 
+  requestRoomInfo(room) {
+    this.socket.emit('request-room-info', room);
+  }
+
   /**
    * Elimina la imagen.
    * 
@@ -53,6 +58,10 @@ export class SocketService {
 
   stopFirstUpdateFiles() {
     this.socket.emit('stop-first-update-files');
+  }
+
+  getRoom() {
+    return this.socket.fromEvent('get-room').pipe( map( (data) => { return <any>data; } ) );
   }
 
   /**
@@ -67,4 +76,6 @@ export class SocketService {
   updateFileState() {
     return this.socket.fromEvent('update-file-state').pipe( map( (data) => { return <any>data; } ) );
   }
+
+  
 }
