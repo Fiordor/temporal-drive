@@ -26,8 +26,6 @@ export class ManagerComponent implements OnInit {
   ngOnInit(): void {
     this.backendService.getRooms().subscribe(res => {
       this.rooms = res.message;
-      console.log(res.message[0]);
-      
     });
   }
 
@@ -35,7 +33,5 @@ export class ManagerComponent implements OnInit {
 
   openRoom(room) { 
     this.selectedRoom = room;
-    console.log(this.selectedRoom);
   }
-
 }

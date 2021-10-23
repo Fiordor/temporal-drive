@@ -29,6 +29,10 @@ export class ManagerRoomComponent implements OnInit {
     this.backendService.getRoom(this.inputRoom).subscribe(res => {
       if (res.res == 'ok') { this.setRoomOnLocal(res.message); }
     });
+
+    this.backendService.getDriveSize().subscribe(res => {
+      console.log(res);
+    });
   }
 
   generateRandomToken() {

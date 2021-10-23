@@ -126,7 +126,7 @@ io.on('connection', (socket) => {
 		if (response.yes) {
 
 			function testBusy() {
-				let sql = `SELECT capacity, busy, busy_perc FROM room WHERE token LIKE '${fileInfo.token}';`;
+				let sql = `SELECT capacity, busy, busy_perc FROM room WHERE token LIKE '${fileInfo.token}'`;
 				connection.query(sql, (err, rows, fields) => {
 					response.yes = (err || rows.length > 1) ? false : true;
 					if (response.yes) { insertFileIntoDB(rows[0]); }
@@ -135,7 +135,7 @@ io.on('connection', (socket) => {
 			}
 
 			function insertFileIntoDB(roomInfo) {
-				
+
 				let newBusy = roomInfo.busy + fileInfo.size;
 				let newPerc = Math.round(newBusy / roomInfo.capacity * 100);
 				if (newPerc == 0) { newPerc = 1; }
@@ -145,14 +145,14 @@ io.on('connection', (socket) => {
 
 				let update = `UPDATE room SET busy = ${newBusy}, busy_perc = ${newPerc} WHERE token LIKE '${fileInfo.token}'`;
 
-				connection.query(update, (err, rows, fields) => {  });
+				connection.query(update, (err, rows, fields) => { });
 
 				connection.query(insert, (err, rows, fields) => {
 					response.yes = (err) ? false : true;
 					socket.emit(EMIT, response);
 				});
 			}
-			
+
 			testBusy();
 
 		} else {
@@ -209,39 +209,61 @@ io.on('connection', (socket) => {
 			if (err) { console.log(err); }
 			else {
 
+				let fileBusy = undefined;
+				let room = undefined;
+
 				function getFileInfo() {
-					
+					let select = `SELECT busy FROM box WHERE id LIKE '${img.token}${img.name}'`;
+					connection.query(select, (err, rows, fields) => {
+						if (err || rows.length > 1) { console.log(err); }
+						else {
+							console.log('getFileInfo', rows);
+							fileBusy = rows[0].busy;
+							updateBusyRoom();
+							deleteFile();
+						}
+					});
 				}
 
 				function getRoomInfo() {
-
+					let select = `SELECT capacity, busy, busy_perc FROM room WHERE token LIKE '${img.token}'`;
+					connection.query(select, (err, rows, fields) => {
+						if (err || rows.length > 1) { console.log(err); }
+						else {
+							console.log('getRoomInfo', rows);
+							room = rows[0];
+							updateBusyRoom();
+						}
+					});
 				}
 
 				function updateBusyRoom() {
 
+					if (fileBusy == undefined || room == undefined) return;
+
+					let newBusy = room.busy - fileBusy;
+					let newPerc = newBusy / room.capacity * 100;
+					if (newPerc > 0) {
+						if (newPerc < 1) newPerc = 1;
+						else newPerc = Math.round(newBusy);
+					}
+
+					let update = `UPDATE room SET busy = ${newBusy}, busy_perc = ${newPerc} WHERE token LIKE '${img.token}'`;
+
+					connection.query(update, (err, rows, fields) => { });
 				}
 
-				let sql = `DELETE FROM box WHERE id LIKE '${img.token}${img.name}';`
-				connection.query(sql, (err, rows, fields) => {
-					if (err) { console.log(err); }
-					else { updateFiles(img.token); }
-				});
+				function deleteFile() {
+					let sql = `DELETE FROM box WHERE id LIKE '${img.token}${img.name}';`
+					connection.query(sql, (err, rows, fields) => {
+						if (err) { console.log(err); }
+						else { updateFiles(img.token); }
+					});
+				}
 
-				let newBusy = roomInfo.busy + fileInfo.size;
-				let newPerc = Math.round(newBusy / roomInfo.capacity * 100);
-				if (newPerc == 0) { newPerc = 1; }
-
-				let insert = `INSERT INTO box VALUES ('${fileInfo.token}${fileInfo.name}',
-				'${fileInfo.token}', '${fileInfo.name}', ${fileInfo.size}, 0);`;
-
-				let update = `UPDATE room SET busy = ${newBusy}, busy_perc = ${newPerc} WHERE token LIKE '${fileInfo.token}'`;
-
-				connection.query(update, (err, rows, fields) => {  });
-
-				connection.query(insert, (err, rows, fields) => {
-					response.yes = (err) ? false : true;
-					socket.emit(EMIT, response);
-				});
+				getFileInfo();
+				getRoomInfo();
+				
 			}
 		});
 	});

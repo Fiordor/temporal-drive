@@ -1,22 +1,13 @@
-<div class="nav">
-  <div class="nav-left">
-    <div class="nav-button">
-      <mat-icon aria-hidden="false" aria-label="menu">menu</mat-icon>
-    </div>
-    <div class="nav-button" (click)="selectedRoom = undefined">
-      <mat-icon aria-hidden="false" aria-label="home">home</mat-icon>
-    </div>
-    <div class="nav-button">
-      <mat-icon aria-hidden="false" aria-label="update">update</mat-icon>
-    </div>
-  </div>
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="selectedRoom = undefined">
+    <mat-icon>home</mat-icon>
+  </button>
+  <span class="example-spacer"></span>
+  <button mat-icon-button (click)="goTo('/')">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
 
-  <div class="nav-right">
-    <div class="nav-button" (click)="goTo('/')">
-      <mat-icon aria-hidden="false" aria-label="logout">logout</mat-icon>
-    </div>
-  </div>
-</div>
 <div *ngIf="selectedRoom == undefined">
   <app-manager-home [rooms]="rooms" (openRoom)="openRoom($event)"></app-manager-home>
 </div>

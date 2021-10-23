@@ -21,6 +21,10 @@ export class BackendService {
     .pipe( map(res => { return <Res>res;}) );
   }
 
+  getDriveSize() {
+    return this.sendPost({ op: 'getDriveSize'});
+  }
+
   getRoom(room) {
     return this.sendPost({ op: 'getRoom', room: room });
   }

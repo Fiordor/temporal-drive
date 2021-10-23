@@ -10,6 +10,9 @@ $color-black: #000;
 $color-red: #d50000;
 $color-green: #64dd17;
 
+$primary: #3f51b5;
+$text-color: rgba(0,0,0,.87);
+
 $button-transition: 0.2s;
 
 html, body { height: 100%; }
@@ -17,6 +20,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .example-spacer {
   flex: 1 1 auto;
+}
+
+.grid-buttons button {
+  width: 100%;
 }
 
 //
@@ -63,56 +70,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .input-room .home-button:hover {
   margin-top: 5px;
-  background-color: $color-1;
-  cursor: pointer;
-}
-
-//
-// nav
-//
-
-.nav {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: calc(100% - 20px);
-  background-color: $color-2;
-  height: auto;
-  padding: 10px;
-}
-
-.nav mat-icon {
-  font-size: 25px;
-}
-
-.nav-left {
-  display: flex;
-  flex-direction: row;
-  font-size: 25px;
-}
-
-.nav-left .nav-button {
-  margin-right: 5px;
-  font-size: 25px;
-}
-
-.nav-right .nav-button {
-  font-size: 25px;
-}
-
-.nav-button {
-  width: 35px;
-  height: 35px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: $button-transition;
-  border-radius: 50%;
-}
-
-.nav-button:hover {
   background-color: $color-1;
   cursor: pointer;
 }
@@ -320,7 +277,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   padding: 20px;
 }
 
-.room-box-header {
+.room-row-header {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -335,7 +292,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .room-number {
   font-size: 30px;
-  color: $color-2;
+  color: $primary;
 }
 
 .room-token-box {
@@ -377,14 +334,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   cursor: pointer;
 }
 
-.room-capacity {
+.room-row {
   margin-top: 20px;
 }
 
 .room-label {
   align-self: center;
   text-transform: uppercase;
-  color: $color-2;
+  color: $text-color;
   font-size: 16px;
   width: max-content;
 }
@@ -422,7 +379,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .line {
   align-self: center;
   height: 2px;
-  background-color: $color-2;
+  background-color: rgba(0,0,0,.12);
 }
 
 .capacity-buttons {

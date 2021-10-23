@@ -27,6 +27,7 @@ router.post('/', function (req, res, next) {
   console.log(`[${new Date().toISOString()}] ${req.body.op}`);
 
   switch (req.body.op) {
+    case 'getDriveSize': getDriveSize(req, res); break;
     case 'getFiles': getFiles(req, res); break;
     case 'getRoom': getRoom(req, res); break;
     case 'getRooms': getRooms(req, res); break;
@@ -35,6 +36,17 @@ router.post('/', function (req, res, next) {
     case 'canUploadFile': canUploadFile(req, res); break;
   }
 });
+
+function getDriveSize(req, res) {
+
+  let sql = `SELECT SUM(capacity) AS sum FROM room`;
+
+  connection.query(sql, (err, rows, fields) => {
+    if (err) { res.send(er(err)); }
+    else { res.send(ok(rows[0].sum));}
+  });
+
+}
 
 /**
  * Devuelve una lista de las rutas de los archivos de una sala

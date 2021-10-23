@@ -1,15 +1,18 @@
 <div class="room-box">
-  <div class="room-box-header">
+  <div class="room-row-header">
     <div class="room-number">#{{room.id}}</div>
     <div class="room-token-box">
       <div class="room-token"><input type="text" [(ngModel)]="token"></div>
-      <div class="room-generator" (click)="generateRandomToken()">
-        <mat-icon aria-hidden="false" aria-label="generating_tokens">generating_tokens</mat-icon>
-      </div>
+      <button *ngIf="!room.openRoom" mat-mini-fab color="primary" (click)="generateRandomToken()">
+        <mat-icon>generating_tokens</mat-icon>
+      </button>
+      <button *ngIf="room.openRoom" mat-mini-fab disabled>
+        <mat-icon>generating_tokens</mat-icon>
+      </button>
     </div>
   </div>
 
-  <div class="room-capacity">
+  <div class="room-row">
     <div class="room-header">
       <div class="room-label">Capacidad</div>
       <div class="line"></div>
@@ -19,12 +22,16 @@
       </div>
     </div>
     <div class="capacity-buttons">
-      <div *ngFor="let capacity of CAPACITY_AVAILABLES" class="grid-button" (click)="setCapacity(capacity)">{{capacity}}
+      <div class="grid-buttons" *ngFor="let capacity of CAPACITY_AVAILABLES">
+        <button *ngIf="!room.openRoom" mat-raised-button color="primary"
+          (click)="setCapacity(capacity)">{{capacity}}</button>
+        <button *ngIf="room.openRoom" mat-raised-button disabled>{{capacity}}</button>
       </div>
+
     </div>
   </div>
 
-  <div class="room-time">
+  <div class="room-row">
     <div class="room-header">
       <div class="room-label">Apagar dentro de</div>
       <div class="line"></div>
@@ -34,12 +41,18 @@
       </div>
     </div>
     <div class="time-buttons">
-      <div *ngFor="let time of TIME_AVAILABLES" class="grid-button" (click)="setTime(time)">{{time}}</div>
-      <div *ngFor="let day of DAY_AVAILABLES" class="grid-button" (click)="setDay(day)">{{day}}d</div>
+      <div class="grid-buttons" *ngFor="let time of TIME_AVAILABLES">
+        <button *ngIf="!room.openRoom" mat-raised-button color="primary" (click)="setTime(time)">{{time}}</button>
+        <button *ngIf="room.openRoom" mat-raised-button disabled>{{time}}</button>
+      </div>
+      <div class="grid-buttons" *ngFor="let day of DAY_AVAILABLES">
+        <button *ngIf="!room.openRoom" mat-raised-button color="primary" (click)="setDay(day)">{{day}}d</button>
+        <button *ngIf="room.openRoom" mat-raised-button disabled>{{day}}d</button>
+      </div>
     </div>
   </div>
 
-  <div class="room-status">
+  <div class="room-row">
     <div class="status-header">
       <div class="room-label">Estado de la sala</div>
       <div class="line"></div>
