@@ -78,6 +78,10 @@ export class SocketService {
     return this.socket.fromEvent('get-room').pipe( map( (data) => { return <any>data; } ) );
   }
 
+  updateSizes() {
+    return this.socket.fromEvent('update-sizes').pipe( map( (data) => { return <any>data; } ) );
+  }
+
   /**
    * Escucha evento cuando se actualiza la tabla box.
    * 

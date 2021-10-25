@@ -23,9 +23,9 @@
     </div>
     <div class="capacity-buttons">
       <div class="grid-buttons" *ngFor="let capacity of CAPACITY_AVAILABLES">
-        <button *ngIf="!room.openRoom" mat-raised-button color="primary"
-          (click)="setCapacity(capacity)">{{capacity}}</button>
-        <button *ngIf="room.openRoom" mat-raised-button disabled>{{capacity}}</button>
+        <button *ngIf="!room.openRoom && capacity.enable " mat-raised-button color="primary"
+          (click)="setCapacity(capacity)">{{capacity.value}}</button>
+        <button *ngIf="room.openRoom || !capacity.enable" mat-raised-button disabled>{{capacity.value}}</button>
       </div>
 
     </div>

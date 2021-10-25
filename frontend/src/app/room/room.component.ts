@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RoomService } from 'src/service/room/room.service';
 import { SocketService } from 'src/service/socket/socket.service';
 
 import { saveAs } from 'file-saver';
@@ -18,9 +17,8 @@ export class RoomComponent implements OnInit, OnDestroy {
   files: any[] = [];
   filesWaitingForUpload: any[] = [];
 
-  constructor(private route: ActivatedRoute, private roomService: RoomService,
-    private socketService: SocketService, private router: Router) {
-
+  constructor(private route: ActivatedRoute, private socketService: SocketService,
+    private router: Router) {
   }
 
   ngOnInit(): void {
@@ -29,7 +27,6 @@ export class RoomComponent implements OnInit, OnDestroy {
       this.socketService.connect().subscribe(() => {
         this.startListeners();
         this.socketService.requestRoomInfo(params['id']);
-        this.socketService.joinOnRoom(params['id']);
       });
     });
   }
@@ -40,15 +37,19 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   startListeners() {
     this.socketService.getRoom().subscribe(res => {
-      this.room = res;
+      this.listenerGetRoom(res);
     });
 
     this.socketService.fileCanBeUploaded().subscribe(res => {
       this.listenerFileCanBeUploaded(res);
     });
 
+    this.socketService.updateSizes().subscribe(res => {
+      this.listenerUpdateSizes(res);
+    });
+
     this.socketService.updateFiles().subscribe(res => {
-      this.listenerUpdatesFiles(res);
+      this.listenerUpdateFiles(res);
     });
 
     this.socketService.updateFileState().subscribe(res => {
@@ -100,9 +101,17 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.socketService.deleteFile({ token: this.room.token, name: file.name });
   }
 
+  private listenerGetRoom(room) {
+    console.log(room);
+    if (room == 'err') {
+      this.router.navigate(['/']);
+    } else {
+      this.room = room;
+      this.socketService.joinOnRoom(room.token);
+    }
+  }
+
   private listenerFileCanBeUploaded(response) {
-    
-    console.log('respose', response);
 
     let event = this.filesWaitingForUpload[response.id];
     delete this.filesWaitingForUpload[response.id];
@@ -158,7 +167,12 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
   }
 
-  private listenerUpdatesFiles(inComingFiles) {
+  private listenerUpdateSizes(sizes) {
+    this.room.busy = sizes.busy;
+    this.room.busy_perc = sizes.busy_perc;
+  }
+
+  private listenerUpdateFiles(inComingFiles) {
     if (this.noFiles) {
       this.socketService.stopFirstUpdateFiles();
       this.files = inComingFiles;

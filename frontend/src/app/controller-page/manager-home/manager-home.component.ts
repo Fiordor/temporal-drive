@@ -15,7 +15,7 @@ export class ManagerHomeComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  clickOpenRoom(room) {
-    this.openRoom.emit(room);
+  clickOpenRoom(id) {
+    this.openRoom.emit(id);
   }
 }

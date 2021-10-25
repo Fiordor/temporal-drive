@@ -109,9 +109,9 @@ function getRoom(req, res) {
  * Sin body.
  */
 function getRooms(req, res) {
-  connection.query('SELECT * FROM room', function (err, rows, fields) {
-    if (err) throw err;
-    res.send(ok(rows));
+  connection.query('SELECT * FROM room ORDER BY id', function (err, rows, fields) {
+    if (err) { res.send(er(err)); }
+    else { res.send(ok(rows)); }
   });
 }
 

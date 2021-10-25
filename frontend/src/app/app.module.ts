@@ -19,8 +19,9 @@ import { ManagerHomeComponent } from './controller-page/manager-home/manager-hom
 import { ManagerRoomComponent } from './controller-page/manager-room/manager-room.component';
 
 import {MatButtonModule} from '@angular/material/button'; 
-import { MatIconModule } from '@angular/material/icon'; 
+import {MatIconModule} from '@angular/material/icon'; 
 import {MatToolbarModule} from '@angular/material/toolbar'; 
+import {MatProgressBarModule} from '@angular/material/progress-bar'; 
 
 const config: SocketIoConfig = {
   url: environment.socket,
@@ -51,7 +52,8 @@ const config: SocketIoConfig = {
     BrowserAnimationsModule,
     MatIconModule,
     MatButtonModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

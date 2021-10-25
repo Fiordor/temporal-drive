@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BackendService } from 'src/service/backend/backend.service';
-import { SocketService } from 'src/service/socket/socket.service';
+import { ManagerService } from 'src/service/manager/manager.service';
 
 @Component({
   selector: 'app-manager',
@@ -10,28 +10,31 @@ import { SocketService } from 'src/service/socket/socket.service';
 })
 export class ManagerComponent implements OnInit {
 
-  selectedRoom: any = undefined;
+  idRoom: number = 0;
 
-  rooms: any[];
+  rooms: any[] = [];
 
-  constructor(private backendService: BackendService, private socketService: SocketService,
+  constructor(private backendService: BackendService, private managerService: ManagerService,
     private router: Router) {
-    this.rooms = [];
-    for(let i = 0; i < 6; i++) {
-      this.rooms[i] = { id: i+1 }
-    
-    }
   }
 
   ngOnInit(): void {
     this.backendService.getRooms().subscribe(res => {
       this.rooms = res.message;
     });
+
+    this.managerService.connect().subscribe(() => {
+      this.managerService.joinOnRoom();
+      this.listeners();
+    });
+
   }
 
   goTo(path) { this.router.navigate([path]); }
 
-  openRoom(room) { 
-    this.selectedRoom = room;
+  openRoom(id) { this.idRoom = id; }
+
+  private listeners() {
+
   }
 }

@@ -41,7 +41,9 @@ app.post('/', api);
  */
 io.on('connection', (socket) => {
 
+	const MANAGER_ROOM = 'manager';
 	let idInterval = null;
+	let contInterval = 0;
 	let filesBuff = [];
 
 	const updateFiles = (token) => {
@@ -64,6 +66,35 @@ io.on('connection', (socket) => {
 		});
 	}
 
+	const updateFirstFiles = (token) => {
+		let sql = `SELECT name FROM box WHERE token = '${token}' AND dateCreate > 0;`;
+
+		connection.query(sql, (err, rows, fields) => {
+			if (err) { console.log(err); }
+			else {
+				let files = [];
+				rows.forEach(row => {
+					let file = {
+						name: row.name,
+						path: URL + path.join('/', PUBLIC, token, row.name)
+					}
+					files.push(file);
+				});
+				console.log(`[${new Date().toISOString()}] update-files ${socket.id} ${contInterval}`);
+				socket.emit('update-files', files);
+			}
+		});
+		if (contInterval++ > 10) { clearInterval(idInterval); }
+	}
+
+	const updateSizes = (token) => {
+		let sql = `SELECT busy, busy_perc FROM room WHERE token LIKE '${token}'`;
+		connection.query(sql, (err, rows, fields) => {
+			if ((err || rows.length > 1)) { console.log(err); }
+			else { socket.emit('update-sizes', rows[0]); }
+		});
+	}
+
 	console.log('connection', socket.id);
 
 	//  join-on-room  ------------------------------------------------------------
@@ -71,27 +102,10 @@ io.on('connection', (socket) => {
 		console.log(`[${new Date().toISOString()}] join-on-room ${room}`);
 		socket.join(room);
 
-		var cont = 0;
-		idInterval = setInterval(() => {
-			let sql = `SELECT name FROM box WHERE token = '${room}' AND dateCreate > 0;`;
-
-			connection.query(sql, (err, rows, fields) => {
-				if (err) { console.log(err); }
-				else {
-					let files = [];
-					rows.forEach(row => {
-						let file = {
-							name: row.name,
-							path: URL + path.join('/', PUBLIC, room, row.name)
-						}
-						files.push(file);
-					});
-					console.log(`[${new Date().toISOString()}] update-files ${socket.id} ${cont}`);
-					socket.emit('update-files', files);
-				}
-			});
-			if (cont++ > 10) { clearInterval(idInterval); }
-		}, 1000);
+		if (room != MANAGER_ROOM) {
+			contInterval = 0;
+			idInterval = setInterval(() => { updateFirstFiles(room); }, 1000);
+		}
 	});
 
 	//  stop-first-update-files  -------------------------------------------------
@@ -105,8 +119,10 @@ io.on('connection', (socket) => {
 
 		let sql = `SELECT * FROM room WHERE token LIKE '${room}'`;
 		connection.query(sql, (err, rows, fields) => {
-			if (err || rows.length > 1) {
-				console.log(err);
+			console.log('err', err);
+			console.log('rows', rows);
+			if (err || rows.length != 1) {
+				socket.emit('get-room', 'err');
 			} else {
 				socket.emit('get-room', rows[0]);
 			}
@@ -145,12 +161,18 @@ io.on('connection', (socket) => {
 
 				let update = `UPDATE room SET busy = ${newBusy}, busy_perc = ${newPerc} WHERE token LIKE '${fileInfo.token}'`;
 
-				connection.query(update, (err, rows, fields) => { });
+				response.yes = newBusy <= roomInfo.capacity;
 
-				connection.query(insert, (err, rows, fields) => {
-					response.yes = (err) ? false : true;
+				if (response.yes) {
+					connection.query(update, (err, rows, fields) => { });
+
+					connection.query(insert, (err, rows, fields) => {
+						response.yes = (err) ? false : true;
+						socket.emit(EMIT, response);
+					});	
+				} else {
 					socket.emit(EMIT, response);
-				});
+				}
 			}
 
 			testBusy();
@@ -180,7 +202,10 @@ io.on('connection', (socket) => {
 					let sql3 = `UPDATE box SET dateCreate = ${Date.now()} WHERE id LIKE '${data.token}${data.name}';`
 					connection.query(sql3, (err, rows, fields) => {
 						if (err) { console.log(err); }
-						else { updateFiles(data.token); }
+						else {
+							updateFiles(data.token);
+							updateSizes(data.token);
+						}
 					});
 				}
 			});
@@ -257,7 +282,10 @@ io.on('connection', (socket) => {
 					let sql = `DELETE FROM box WHERE id LIKE '${img.token}${img.name}';`
 					connection.query(sql, (err, rows, fields) => {
 						if (err) { console.log(err); }
-						else { updateFiles(img.token); }
+						else {
+							updateFiles(img.token);
+							updateSizes(img.token);
+						}
 					});
 				}
 

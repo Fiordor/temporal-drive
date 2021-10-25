@@ -8,12 +8,14 @@ import { BackendService } from 'src/service/backend/backend.service';
 })
 export class ManagerRoomComponent implements OnInit {
 
-  readonly CAPACITY_AVAILABLES = [ 128, 256, 384, 512, 640, 768, 896, 1024 ];
-  readonly TIME_AVAILABLES = [ '00:05', '00:10', '00:15', '00:30', '00:45', '01:00', '02:00', '04:00', '08:00', '16:00' ];
-  readonly DAY_AVAILABLES = [ '1', '2', '7', '14', '30' ];
+  CAPACITY_AVAILABLES = [];
+  TIME_AVAILABLES = [ '00:05', '00:10', '00:15', '00:30', '00:45', '01:00', '02:00', '04:00', '08:00', '16:00' ]
+  DAY_AVAILABLES = [ '1', '2', '7', '14', '30' ];
 
-  @Input() inputRoom: number = null;
-  room: any = { id: 0, openRoom: 0 };
+  @Input() id: number = 0;
+  @Input() rooms: any[] = [];
+
+  room : any = { id: 0, openRoom: 0 };
 
   token: string = '';
   capacity: number = 0;
@@ -26,13 +28,8 @@ export class ManagerRoomComponent implements OnInit {
   constructor(private backendService: BackendService) { }
 
   ngOnInit(): void {
-    this.backendService.getRoom(this.inputRoom).subscribe(res => {
-      if (res.res == 'ok') { this.setRoomOnLocal(res.message); }
-    });
-
-    this.backendService.getDriveSize().subscribe(res => {
-      console.log(res);
-    });
+    this.setRoomOnLocal(this.rooms[this.id - 1]);
+    this.setCapacities();
   }
 
   generateRandomToken() {
@@ -66,6 +63,19 @@ export class ManagerRoomComponent implements OnInit {
     } else {
       this.powerOnRoom();
     }
+  }
+
+  private setCapacities() {
+    const SIZES = [ 128, 256, 384, 512, 640, 768, 896, 1024 ];
+    let localSizes = [];
+    let maxSize = 1024;
+
+    this.rooms.forEach(room => { maxSize -= room.capacity / (1024 * 1024); });
+
+    SIZES.forEach(size => {
+      localSizes.push( { value: size, enable: size <= maxSize } );
+    });
+    this.CAPACITY_AVAILABLES = localSizes;
   }
 
   private setRoomOnLocal(room) {

@@ -6,6 +6,15 @@
   </button>
 </mat-toolbar>
 
+<div class="size-info">
+  <div class="size-progress">
+    <mat-progress-bar mode="determinate" [value]="room.busy_perc"></mat-progress-bar>
+  </div>
+  <div class="size-label">{{room.busy}}B</div>
+  <div class="size-label">/</div>
+  <div class="size-label">{{room.capacity}}B</div>
+</div>
+
 <div class="room-content">
   <div class="img-box" *ngFor="let file of files">
     <div *ngIf="file.perc == undefined" class="img-button img-button-delete" (click)="deleteFile(file)">

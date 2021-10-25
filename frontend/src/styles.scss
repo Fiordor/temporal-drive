@@ -26,6 +26,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   width: 100%;
 }
 
+.size-info {
+  margin: 10px 10px 0px 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.size-progress {
+  width: 100%;
+}
+
+.size-label {
+  margin-left: 5px;
+}
+
 //
 // home
 //

@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-  <button mat-icon-button (click)="selectedRoom = undefined">
+  <button mat-icon-button (click)="idRoom = 0">
     <mat-icon>home</mat-icon>
   </button>
   <span class="example-spacer"></span>
@@ -8,9 +8,9 @@
   </button>
 </mat-toolbar>
 
-<div *ngIf="selectedRoom == undefined">
+<div *ngIf="idRoom == 0">
   <app-manager-home [rooms]="rooms" (openRoom)="openRoom($event)"></app-manager-home>
 </div>
-<div *ngIf="selectedRoom != undefined">
-  <app-manager-room [inputRoom]="selectedRoom.id" ></app-manager-room>
+<div *ngIf="idRoom != 0">
+  <app-manager-room [id]="idRoom" [rooms]="rooms" ></app-manager-room>
 </div>
