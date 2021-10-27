@@ -11,8 +11,6 @@ import { saveAs } from 'file-saver';
 })
 export class RoomComponent implements OnInit, OnDestroy {
 
-  noFiles: boolean = true;
-
   room: any = { token: '' };
   files: any[] = [];
   filesWaitingForUpload: any[] = [];
@@ -24,11 +22,20 @@ export class RoomComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this.route.params.subscribe(params => {
+      let token = params['id'];
       this.socketService.connect().subscribe(() => {
-        this.startListeners();
-        this.socketService.requestRoomInfo(params['id']);
+        this.socketService.requestRoomInfo(token).subscribe(res => {
+          if (res) {
+            this.room = res;
+            this.joinOnRoom();
+          } else {
+            this.router.navigate(['/']);
+          }
+        });
       });
     });
+
+    this.startListeners();
   }
 
   ngOnDestroy(): void {
@@ -36,10 +43,6 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   startListeners() {
-    this.socketService.getRoom().subscribe(res => {
-      this.listenerGetRoom(res);
-    });
-
     this.socketService.fileCanBeUploaded().subscribe(res => {
       this.listenerFileCanBeUploaded(res);
     });
@@ -101,24 +104,24 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.socketService.deleteFile({ token: this.room.token, name: file.name });
   }
 
-  private listenerGetRoom(room) {
-    console.log(room);
-    if (room == 'err') {
-      this.router.navigate(['/']);
-    } else {
-      this.room = room;
-      this.socketService.joinOnRoom(room.token);
-    }
+  private joinOnRoom() {
+    this.socketService.joinOnRoom(this.room.token).subscribe(res => {
+      this.files = res;
+    });
   }
 
   private listenerFileCanBeUploaded(response) {
 
+    console.log('listenerFileCanBeUploaded');
+    console.log(this.filesWaitingForUpload);
+
     let event = this.filesWaitingForUpload[response.id];
     delete this.filesWaitingForUpload[response.id];
 
-    if (!response.yes) { return; }
+    if (!response.yes) { console.log('no se puede subir el archivo'); return; }
 
     const reader = new FileReader();
+    console.log(event);
     reader.readAsDataURL(event);
     reader.onload = () => {
 
@@ -173,28 +176,23 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   private listenerUpdateFiles(inComingFiles) {
-    if (this.noFiles) {
-      this.socketService.stopFirstUpdateFiles();
-      this.files = inComingFiles;
-      this.noFiles = false;
-    } else {
-      inComingFiles.forEach(inComingFile => {
-        let localFile = this.files.find(f => f.name == inComingFile.name);
-        if (localFile == undefined) {
-          this.files.push(inComingFile);
-        } else if (localFile['perc'] != undefined) {
-          localFile.path = inComingFile.path;
-          delete localFile['perc'];
-        }
-      });
 
-      this.files.forEach((localFile, index) => {
-        let inComingFile = inComingFiles.findIndex(f => f.name == localFile.name);
-        if (inComingFile == -1 && localFile['perc'] == undefined) {
-          this.files.splice(index, 1);
-        }
-      });
-    }
+    inComingFiles.forEach(inComingFile => {
+      let localFile = this.files.find(f => f.name == inComingFile.name);
+      if (localFile == undefined) {
+        this.files.push(inComingFile);
+      } else if (localFile['perc'] != undefined) {
+        localFile.path = inComingFile.path;
+        delete localFile['perc'];
+      }
+    });
+
+    this.files.forEach((localFile, index) => {
+      let inComingFile = inComingFiles.findIndex(f => f.name == localFile.name);
+      if (inComingFile == -1 && localFile['perc'] == undefined) {
+        this.files.splice(index, 1);
+      }
+    });
   }
 
   private listenerUpdateFileState(fileToUpdate) {

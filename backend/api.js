@@ -92,7 +92,7 @@ function getRoom(req, res) {
         if (row.id == req.body.room) { room = row; }
         if (row.openRoom) {
           if (row.token.length > 0) { tokens.push(row.token); }
-          maxSizeMB += row.capacity / (1024 * 1024);
+          maxSizeMB += toMB(row.capacity);
         }
       });
 
@@ -111,7 +111,10 @@ function getRoom(req, res) {
 function getRooms(req, res) {
   connection.query('SELECT * FROM room ORDER BY id', function (err, rows, fields) {
     if (err) { res.send(er(err)); }
-    else { res.send(ok(rows)); }
+    else {
+      rows.forEach(row => { row['capacityMB'] = toMB(row.capacity); });
+      res.send(ok(rows));
+    }
   });
 }
 
@@ -222,6 +225,10 @@ function canUploadFile(req, res) {
     res.send(er('room path not exists'));
   }
 }
+
+function toMB(bytes) { return bytes / (1024 * 1024) }
+
+function toB(megabytes) { return megabytes * (1024 * 1024) }
 
 function ok(message) { return { res: 'ok', message: message } }
 

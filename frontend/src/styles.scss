@@ -252,14 +252,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 // manager-home ----------------------------------------------------------------
 //
 
-.box-number {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  top: 50%;
-  left: 50%;
-  font-size: 50px;
-}
-
 .manager-home {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -270,8 +262,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .manager-box {
   position: relative;
-  background-color: $color-3;
-  color: $color-1;
   height: 100px;
   padding: 10px;
   border-radius: 2px;
@@ -279,10 +269,37 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .manager-box:hover {
-  border-radius: 4px;
-  background-color: $color-1;
-  color: $color-3;
+  cursor: pointer;
 }
+
+.box-token {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+}
+
+.box-number {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  font-size: 50px;
+}
+
+.box-size {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  text-align: right;
+}
+
+.box-dateOff {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+}
+
+
 
 //
 // manager-room ----------------------------------------------------------------

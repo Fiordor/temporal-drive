@@ -1,7 +1,13 @@
 <div class="manager-home">
   <div *ngFor="let room of rooms">
-    <div class="manager-box" (click)="clickOpenRoom(room.id)">
+    <mat-card class="manager-box" (click)="clickOpenRoom(room.id)">
+      <div class="box-token">{{room.token}}</div>
       <div class="box-number">#{{room.id}}</div>
-    </div>
+      <div class="box-size">
+        <div>{{ capacityToString(room.capacityMB) }}</div>
+        <div>{{busyToString(room.busy_perc)}} </div>
+      </div>
+      <div class="box-dateOff">{{ dateOffToString(room.dateOff) }}</div>
+    </mat-card>
   </div>
 </div>

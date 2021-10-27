@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { BackendService } from 'src/service/backend/backend.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { BackendService } from 'src/service/backend/backend.service';
   templateUrl: './manager-room.component.html',
   styleUrls: ['./manager-room.component.scss']
 })
-export class ManagerRoomComponent implements OnInit {
+export class ManagerRoomComponent implements OnInit, OnChanges {
 
   CAPACITY_AVAILABLES = [];
   TIME_AVAILABLES = [ '00:05', '00:10', '00:15', '00:30', '00:45', '01:00', '02:00', '04:00', '08:00', '16:00' ]
@@ -32,6 +32,11 @@ export class ManagerRoomComponent implements OnInit {
     this.setCapacities();
   }
 
+  ngOnChanges(): void {
+    console.log('changes');
+    console.log(this.rooms);
+  }
+
   generateRandomToken() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const charactersLength = characters.length;
@@ -44,6 +49,7 @@ export class ManagerRoomComponent implements OnInit {
   }
 
   setCapacity(capacity) {
+    console.log(capacity);
     this.capacity = capacity;
   }
 
@@ -95,7 +101,7 @@ export class ManagerRoomComponent implements OnInit {
 
   private powerOnRoom() {
 
-    if (this.room.tokens.find(t => t == this.token) != undefined) { return; }
+    //if (this.room.tokens.find(t => t == this.token) != undefined) { return; }
     if (this.capacity == 0) { return; }
     if (this.days.length == 0 && this.time.length == 0) { return; }
 

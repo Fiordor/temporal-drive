@@ -20,7 +20,6 @@ export class HomeComponent implements OnInit {
   }
 
   join() {
-    console.log(this.room);
     this.router.navigate(['room', this.room]);
   }
 

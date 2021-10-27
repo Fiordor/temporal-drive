@@ -1,35 +1,47 @@
 import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { Socket, SocketIoConfig } from 'ngx-socket-io';
 import { Subject } from 'rxjs';
 
 import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SocketService {
 
-  constructor(private socket: Socket) {
-  }
+  readonly config: SocketIoConfig = {
+    url: environment.socket,
+    options: {
+      transports: ['websocket'],
+      autoConnect: false
+    }
+  };
+
+  constructor(private socket: Socket) {}
 
   connect() {
-
     let subject = new Subject<any>();
+    this.socket = new Socket(this.config);
     this.socket.connect();
-
     this.socket.on('connect', () => {
       subject.next();
+      console.log('socket id:', this.socket.ioSocket.id);
     });
-
     return subject;
   }
 
   joinOnRoom(token) {
+    let subject = new Subject<any>();
+    this.socket.fromOneTimeEvent('update-first-files').then(res => { subject.next(res); });
     this.socket.emit('join-on-room', token);
+    return subject;
   }
 
   disconnect() {
+    this.socket.removeAllListeners();
     this.socket.disconnect();
+    this.socket = null;
   }
 
   canUploadFile(fileInfo) {
@@ -48,7 +60,10 @@ export class SocketService {
   }
 
   requestRoomInfo(room) {
+    let subject = new Subject<any>();
+    this.socket.fromOneTimeEvent('get-room').then(res => { subject.next(res); });
     this.socket.emit('request-room-info', room);
+    return subject;
   }
 
   /**
@@ -72,10 +87,6 @@ export class SocketService {
    */
   fileCanBeUploaded() {
     return this.socket.fromEvent('file-can-be-uploaded').pipe( map( (data) => { return <any>data; } ) );
-  }
-
-  getRoom() {
-    return this.socket.fromEvent('get-room').pipe( map( (data) => { return <any>data; } ) );
   }
 
   updateSizes() {

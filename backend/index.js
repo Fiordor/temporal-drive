@@ -42,8 +42,6 @@ app.post('/', api);
 io.on('connection', (socket) => {
 
 	const MANAGER_ROOM = 'manager';
-	let idInterval = null;
-	let contInterval = 0;
 	let filesBuff = [];
 
 	const updateFiles = (token) => {
@@ -66,32 +64,15 @@ io.on('connection', (socket) => {
 		});
 	}
 
-	const updateFirstFiles = (token) => {
-		let sql = `SELECT name FROM box WHERE token = '${token}' AND dateCreate > 0;`;
-
-		connection.query(sql, (err, rows, fields) => {
-			if (err) { console.log(err); }
-			else {
-				let files = [];
-				rows.forEach(row => {
-					let file = {
-						name: row.name,
-						path: URL + path.join('/', PUBLIC, token, row.name)
-					}
-					files.push(file);
-				});
-				console.log(`[${new Date().toISOString()}] update-files ${socket.id} ${contInterval}`);
-				socket.emit('update-files', files);
-			}
-		});
-		if (contInterval++ > 10) { clearInterval(idInterval); }
-	}
-
 	const updateSizes = (token) => {
 		let sql = `SELECT busy, busy_perc FROM room WHERE token LIKE '${token}'`;
 		connection.query(sql, (err, rows, fields) => {
 			if ((err || rows.length > 1)) { console.log(err); }
-			else { socket.emit('update-sizes', rows[0]); }
+			else {
+				io.to(token).emit('update-sizes', rows[0]);
+				rows[0]['token'] = token;
+				io.to(MANAGER_ROOM).emit('update-sizes-manager', rows[0]);
+			}
 		});
 	}
 
@@ -99,19 +80,26 @@ io.on('connection', (socket) => {
 
 	//  join-on-room  ------------------------------------------------------------
 	socket.on('join-on-room', (room) => {
-		console.log(`[${new Date().toISOString()}] join-on-room ${room}`);
+		console.log(`[${new Date().toISOString()}] join-on-room ${room} ${socket.id}`);
 		socket.join(room);
 
 		if (room != MANAGER_ROOM) {
-			contInterval = 0;
-			idInterval = setInterval(() => { updateFirstFiles(room); }, 1000);
+			let sql = `SELECT name FROM box WHERE token = '${room}' AND dateCreate > 0`;
+			connection.query(sql, (err, rows, fields) => {
+				if (err) { console.log(err); }
+				else {
+					let files = [];
+					rows.forEach(row => {
+						let name = row.name;
+						let absolutePath = URL + path.join('/', PUBLIC, room, row.name);
+						let file = { name: name, path: absolutePath }
+						files.push(file);
+					});
+					console.log(`[${new Date().toISOString()}] update-first-files ${socket.id}`);
+					socket.emit('update-first-files', files);
+				}
+			});
 		}
-	});
-
-	//  stop-first-update-files  -------------------------------------------------
-	socket.on('stop-first-update-files', () => {
-		console.log(`[${new Date().toISOString()}] stop-first-update-files`);
-		if (idInterval != null) { clearInterval(idInterval); }
 	});
 
 	//  request-room-info  -------------------------------------------------------
@@ -119,23 +107,18 @@ io.on('connection', (socket) => {
 
 		let sql = `SELECT * FROM room WHERE token LIKE '${room}'`;
 		connection.query(sql, (err, rows, fields) => {
-			console.log('err', err);
-			console.log('rows', rows);
-			if (err || rows.length != 1) {
-				socket.emit('get-room', 'err');
-			} else {
-				socket.emit('get-room', rows[0]);
-			}
+			socket.emit('get-room', (err) ? null : rows[0]);
 		});
 	});
 
+	//  can-upload-file  ---------------------------------------------------------
 	socket.on('can-upload-file', (fileInfo) => {
 
 		const EMIT = 'file-can-be-uploaded';
 		let pathRoom = path.join(__dirname, PUBLIC, fileInfo.token);
 		let response = { yes: false, id: fileInfo.token + fileInfo.name }
 
-		console.log(`[${new Date().toISOString()}] ${EMIT}`);
+		console.log(`[${new Date().toISOString()}] ${EMIT} ${socket.id}`);
 
 		response.yes = fs.existsSync(pathRoom);
 
@@ -144,7 +127,7 @@ io.on('connection', (socket) => {
 			function testBusy() {
 				let sql = `SELECT capacity, busy, busy_perc FROM room WHERE token LIKE '${fileInfo.token}'`;
 				connection.query(sql, (err, rows, fields) => {
-					response.yes = (err || rows.length > 1) ? false : true;
+					response.yes = (err) ? false : true;
 					if (response.yes) { insertFileIntoDB(rows[0]); }
 					else { socket.emit(EMIT, response); }
 				});
@@ -168,6 +151,7 @@ io.on('connection', (socket) => {
 
 					connection.query(insert, (err, rows, fields) => {
 						response.yes = (err) ? false : true;
+						console.log('response', response);
 						socket.emit(EMIT, response);
 					});	
 				} else {
@@ -270,22 +254,21 @@ io.on('connection', (socket) => {
 					let newPerc = newBusy / room.capacity * 100;
 					if (newPerc > 0) {
 						if (newPerc < 1) newPerc = 1;
-						else newPerc = Math.round(newBusy);
+						else newPerc = Math.round(newPerc);
 					}
 
 					let update = `UPDATE room SET busy = ${newBusy}, busy_perc = ${newPerc} WHERE token LIKE '${img.token}'`;
 
-					connection.query(update, (err, rows, fields) => { });
+					connection.query(update, (err, rows, fields) => {
+						updateSizes(img.token);
+					});
 				}
 
 				function deleteFile() {
 					let sql = `DELETE FROM box WHERE id LIKE '${img.token}${img.name}';`
 					connection.query(sql, (err, rows, fields) => {
 						if (err) { console.log(err); }
-						else {
-							updateFiles(img.token);
-							updateSizes(img.token);
-						}
+						else { updateFiles(img.token); }
 					});
 				}
 

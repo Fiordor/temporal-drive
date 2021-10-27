@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BackendService } from 'src/service/backend/backend.service';
 import { ManagerService } from 'src/service/manager/manager.service';
@@ -8,7 +8,7 @@ import { ManagerService } from 'src/service/manager/manager.service';
   templateUrl: './manager.component.html',
   styleUrls: ['./manager.component.scss']
 })
-export class ManagerComponent implements OnInit {
+export class ManagerComponent implements OnInit, OnDestroy {
 
   idRoom: number = 0;
 
@@ -30,11 +30,23 @@ export class ManagerComponent implements OnInit {
 
   }
 
+  ngOnDestroy(): void {
+    this.managerService.disconnect();
+  }
+
   goTo(path) { this.router.navigate([path]); }
 
   openRoom(id) { this.idRoom = id; }
 
   private listeners() {
 
+    this.managerService.updateSizes().subscribe(res => {
+      console.log(res);
+      let index = this.rooms.findIndex(r => r.token == res.token);
+      if (index > -1) {
+        this.rooms[index].busy = res.busy;
+        this.rooms[index].busy_perc = res.busy_perc;
+      }
+    });
   }
 }
