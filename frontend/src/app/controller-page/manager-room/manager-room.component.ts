@@ -6,35 +6,27 @@ import { BackendService } from 'src/service/backend/backend.service';
   templateUrl: './manager-room.component.html',
   styleUrls: ['./manager-room.component.scss']
 })
-export class ManagerRoomComponent implements OnInit, OnChanges {
+export class ManagerRoomComponent implements OnInit {
 
-  CAPACITY_AVAILABLES = [];
-  TIME_AVAILABLES = [ '00:05', '00:10', '00:15', '00:30', '00:45', '01:00', '02:00', '04:00', '08:00', '16:00' ]
-  DAY_AVAILABLES = [ '1', '2', '7', '14', '30' ];
+  CAPACITY_AVAILABLES: any = [];
+  TIME_AVAILABLES: string[] = [ '00:05', '00:10', '00:15', '00:30', '00:45', '01:00', '02:00', '04:00', '08:00', '16:00' ]
+  DAY_AVAILABLES: string[] = [ '1', '2', '7', '14', '30' ];
 
   @Input() id: number = 0;
   @Input() rooms: any[] = [];
 
-  room : any = { id: 0, openRoom: 0 };
+  room : any = { id: 0, openRoom: 0, dateOn: 0, dateOff: 0 };
 
   token: string = '';
   capacity: number = 0;
   days: string = '0';
   time: string = '00:00';
 
-  dateOn: string = '-';
-  dateOff: string = '-';
-
   constructor(private backendService: BackendService) { }
 
   ngOnInit(): void {
     this.setRoomOnLocal(this.rooms[this.id - 1]);
     this.setCapacities();
-  }
-
-  ngOnChanges(): void {
-    console.log('changes');
-    console.log(this.rooms);
   }
 
   generateRandomToken() {
@@ -63,6 +55,18 @@ export class ManagerRoomComponent implements OnInit, OnChanges {
     this.time = time;
   }
 
+  dateToString(millis) {
+    return this.room.openRoom ? new Date(millis).toLocaleString() : '-';
+  }
+
+  busyToString() {
+    if (this.room.openRoom) {
+      return `${this.room.busy}B / ${this.room.capacity}B ${this.room.busy_perc}%`
+    } else {
+      return '-';
+    }
+  }
+
   changeStatus() {
     if (this.room.openRoom) {
       this.powerOffRoom();
@@ -84,24 +88,26 @@ export class ManagerRoomComponent implements OnInit, OnChanges {
     this.CAPACITY_AVAILABLES = localSizes;
   }
 
+  private setRooms(room) {
+    let index = this.rooms.findIndex(r => r.id == room.id);
+    if (index > -1) { this.rooms[index] = room; }
+    this.setCapacities();
+    this.setRoomOnLocal(room);
+  }
+
   private setRoomOnLocal(room) {
 
     this.room = room;
     this.token = room.token;
     this.capacity = room.capacity / (1024 * 1024);
-    
-    if (room.openRoom) {
-      this.dateOn = new Date(room.dateOn).toUTCString();
-      this.dateOff = new Date(room.dateOff).toUTCString();
-    } else {
-      this.dateOn = '-';
-      this.dateOff = '-';
-    }
+
+    console.log('room', this.room);
+    console.log('rooms', this.rooms);
   }
 
   private powerOnRoom() {
 
-    //if (this.room.tokens.find(t => t == this.token) != undefined) { return; }
+    if (this.rooms.find(r => r.token == this.token) != undefined) { return; }
     if (this.capacity == 0) { return; }
     if (this.days.length == 0 && this.time.length == 0) { return; }
 
@@ -118,7 +124,7 @@ export class ManagerRoomComponent implements OnInit, OnChanges {
     }
 
     this.backendService.roomOn(room).subscribe(res => {
-      if (res.res == 'ok') { this.setRoomOnLocal(res.message); }
+      if (res.res == 'ok') { this.setRooms(res.message); }
     });
   }
 
@@ -130,7 +136,7 @@ export class ManagerRoomComponent implements OnInit, OnChanges {
     }
 
     this.backendService.roomOff(room).subscribe(res => {
-      if (res.res == 'ok') { this.setRoomOnLocal(res.message); }
+      if (res.res == 'ok') { this.setRooms(res.message); }
     });
   }
 }

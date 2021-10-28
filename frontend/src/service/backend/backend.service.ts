@@ -25,18 +25,37 @@ export class BackendService {
     return this.sendPost({ op: 'getDriveSize'});
   }
 
+  /**
+   * 
+   * @param room = id
+   * @returns 
+   */
   getRoom(room) {
     return this.sendPost({ op: 'getRoom', room: room });
   }
 
+  /**
+   * 
+   * @returns 
+   */
   getRooms() {
     return this.sendPost({ op: 'getRooms' });
   }
 
+  /**
+   * 
+   * @param room { id, token, capacity, dateOff }
+   * @returns 
+   */
   roomOn(room) {
     return this.sendPost({ op: 'roomOn', room: room });
   }
 
+  /**
+   * 
+   * @param room { id, token }
+   * @returns 
+   */
   roomOff(room) {
     return this.sendPost({ op: 'roomOff', room: room });
   }

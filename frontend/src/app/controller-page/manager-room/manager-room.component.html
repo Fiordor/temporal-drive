@@ -61,15 +61,15 @@
       <div class="status-info">
         <div class="status-info-label">
           <div>Inicio de la sala</div>
-          <div>{{dateOn}}</div>
+          <div>{{ dateToString(room.dateOn) }}</div>
         </div>
         <div class="status-info-label">
           <div>Apagado programado para</div>
-          <div>{{dateOff}}</div>
+          <div>{{ dateToString(room.dateOff) }}</div>
         </div>
         <div class="status-info-label">
           <div>Memoria ocupada</div>
-          <div>-</div>
+          <div>{{ busyToString() }}</div>
         </div>
       </div>
       <div *ngIf="room.openRoom" class="status-button button-green" (click)="changeStatus()">ON</div>

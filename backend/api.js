@@ -28,12 +28,10 @@ router.post('/', function (req, res, next) {
 
   switch (req.body.op) {
     case 'getDriveSize': getDriveSize(req, res); break;
-    case 'getFiles': getFiles(req, res); break;
     case 'getRoom': getRoom(req, res); break;
     case 'getRooms': getRooms(req, res); break;
     case 'roomOn': roomOn(req, res); break;
     case 'roomOff': roomOff(req, res); break;
-    case 'canUploadFile': canUploadFile(req, res); break;
   }
 });
 
@@ -49,57 +47,18 @@ function getDriveSize(req, res) {
 }
 
 /**
- * Devuelve una lista de las rutas de los archivos de una sala
- * body.token = token de la sala.
- */
-function getFiles(req, res) {
-  let sql =
-    `SELECT name
-    FROM box
-    WHERE token = '${req.body.token}' AND dateCreate > 0;`;
-
-  connection.query(sql, function (err, rows, fields) {
-    if (err) { res.send(er(err)); }
-    else {
-      let files = [];
-      rows.forEach(row => {
-        let file = {
-          name: row.name,
-          path: URL + path.join('/', PUBLIC, req.body.token, row.name)
-        }
-        files.push(file);
-      });
-      res.send(ok(files));
-    }
-  });
-}
-
-/**
  * Devuelve la información principal de una sala si está abierta.
- * body.token = token de la sala.
+ * body.room = id de la sala.
  */
 function getRoom(req, res) {
 
-  let sql = `SELECT * FROM room;`;
+  let sql = `SELECT * FROM room WHERE id = ${req.body.id};`;
 
   connection.query(sql, function (err, rows, fields) {
     if (err) { res.send(er(err)); }
     else {
-      let maxSizeMB = 0;
-      let tokens = [];
-      let room = {};
-      rows.forEach(row => {
-        if (row.id == req.body.room) { room = row; }
-        if (row.openRoom) {
-          if (row.token.length > 0) { tokens.push(row.token); }
-          maxSizeMB += toMB(row.capacity);
-        }
-      });
-
-      room['tokens'] = tokens;
-      room['maxSizeMB'] = maxSizeMB;
-
-      res.send(ok(room));
+      rows.forEach(row => { row['capacityMB'] = toMB(row.capacity); });
+      res.send(ok(rows[0]));
     }
   });
 }
@@ -152,11 +111,8 @@ function roomOn(req, res) {
   connection.query(sql, (err, rows, fields) => {
     if (err) { res.send(er(err)); }
     else {
-      let sql1 = `SELECT * FROM room WHERE id = ${id};`;
-      connection.query(sql1, (err, rows, fields) => {
-        if (err) { res.send(er(err)); }
-        else { res.send(ok(rows[0])); }
-      });
+      req.body['id'] = id;
+      getRoom(req, res);
     }
   });
 }
@@ -188,42 +144,10 @@ function roomOff(req, res) {
   connection.query(sql2, (err, rows, fields) => {
     if (err) { console.log(err); }
     else {
-      req.body['room'] = id;
+      req.body['id'] = id;
       getRoom(req, res);
     }
   });
-}
-
-/**
- * Puede subir el archivo si o no.
- * body.file = {
- *  token: token de la sala,
- *  name: nombre del archivo,
- *  size: tamaño del archivo
- * }
- * 
- * Si existe la carpeta pública de la sala significa que está disponible para el
- * uso. Si lo está inserta en la tabla de box los datos iniciales del archivo que
- * se quiere subir. Si no lo está envía un error.
- */
-function canUploadFile(req, res) {
-
-  let pathRoom = path.join(__dirname, PUBLIC, req.body.file.token);
-  if (fs.existsSync(pathRoom)) {
-
-    let file = req.body.file;
-
-    let sql = `INSERT INTO box
-      VALUES ('${file.token}${file.name}', '${file.token}', '${file.name}', ${file.size}, 0);`
-
-    connection.query(sql, function (err, rows, fields) {
-      if (err) { res.send(er(err)); }
-      else { res.send(ok(rows)); }
-    });
-
-  } else {
-    res.send(er('room path not exists'));
-  }
 }
 
 function toMB(bytes) { return bytes / (1024 * 1024) }
