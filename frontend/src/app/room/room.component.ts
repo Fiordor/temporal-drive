@@ -43,6 +43,11 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   startListeners() {
+
+    this.socketService.closeRoom().subscribe(() => {
+      this.router.navigate(['/']);
+    });
+
     this.socketService.fileCanBeUploaded().subscribe(res => {
       this.listenerFileCanBeUploaded(res);
     });
@@ -69,13 +74,15 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   openFile(file) {
-    file['open'] = 1;
+    if (file['perc'] == undefined) {
+      file['open'] = 1;
+    }
   }
 
-  closeFile(file) {
-    if (file['open'] != undefined) {
-      file['open'] = --file['open'];
-      if (file['open'] < 0) { delete file['open']; }
+  openOrCloseFile(file) {
+    if (file['perc'] == undefined) {
+      if (file['open'] == undefined) { file['open'] = 1; }
+      else { delete file['open']; }
     }
   }
 

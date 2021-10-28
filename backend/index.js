@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
 					files.push(file);
 				});
 				console.log(`[${new Date().toISOString()}] update-files ${token}`);
-				io.to(token).emit('update-files', files)
+				io.to(token).emit('update-files', files);
 			}
 		});
 	}
@@ -278,6 +278,11 @@ io.on('connection', (socket) => {
 			}
 		});
 	});
+
+	socket.on('close-room', (token) => {
+		console.log(`[${new Date().toISOString()}] close-room ${token}`);
+		io.to(token).emit('close-room');
+	})
 
 	//  disconnect  --------------------------------------------------------------
 	socket.on('disconnect', () => {

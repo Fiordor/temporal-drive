@@ -27,8 +27,14 @@ export class ManagerHomeComponent implements OnInit, OnChanges {
     return capacity ? capacity + ' MB' : '';
   }
 
-  dateOffToString(millis) {
-    return millis ? new Date(millis).toLocaleString() : '';
+  dateOffToString(k, millis) {
+    if (millis) {
+      let st = new Date(millis).toLocaleString();
+      let split = st.split(' ');
+      return split[k]
+    } else {
+      return '';
+    }
   }
 
   clickOpenRoom(id) {

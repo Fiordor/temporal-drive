@@ -16,44 +16,49 @@
 </div>
 
 <div class="room-content">
-  <div class="img-box" *ngFor="let file of files">
-    <div *ngIf="file.perc == undefined" class="img-button img-button-delete" (click)="deleteFile(file)">
-      <mat-icon aria-hidden="false" aria-label="delete">delete</mat-icon>
-    </div>
-    <div *ngIf="file.perc == undefined" class="img-button img-button-download" (click)="downloadFile(file)">
-      <mat-icon aria-hidden="false" aria-label="download">download</mat-icon>
-    </div>
-    <div class="img-prev" [ngClass]="{ 'img-prev-open' : file.open != undefined }" (click)="closeFile(file)">
-      <img class="img-main" [ngClass]="{ 'img-main-open' : file.open != undefined }" [src]="file.path"
-        (error)="errorLoadingImg($event)" (click)="openFile(file)">
-    </div>
+  <mat-card class="room-card" *ngFor="let file of files">
+
+    <div class="card-img-background" [ngClass]="{ 'card-img-background-open' : file.open != undefined }"
+      (click)="openOrCloseFile(file)"></div>
+
+    <img class="card-img-img" [ngClass]="{ 'card-img-img-open' : file.open != undefined, 'card-img-img-uploading' : file.perc != undefined }" [src]="file.path"
+      (error)="errorLoadingImg($event)" (click)="openFile(file)" />
+
+    <button class="card-close" [ngClass]="{ 'card-close-open' : file.open != undefined }"
+      mat-mini-fab color="primary" (click)="openOrCloseFile(file)">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <button class="card-delete" *ngIf="file.perc == undefined" mat-icon-button color="warn" [matMenuTriggerFor]="menu">
+      <mat-icon>delete</mat-icon>
+    </button>
+
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="deleteFile(file)">Borrar archivo</button>
+    </mat-menu>
+
+    <button class="card-download" *ngIf="file.perc == undefined" mat-mini-fab color="primary" (click)="downloadFile(file)">
+      <mat-icon>download</mat-icon>
+    </button>
+
     <div *ngIf="file.perc != undefined" class="img-progress">
       <div class="img-prog-bar">
-        <div class="img-prog-fill" [style.width.%]="file.perc"></div>
         <div class="img-prog-label">
           <div class="img-prog-label-static">Subiendo...</div>
           <div class="img-prog-label-prog">{{file.perc}}%</div>
         </div>
+        <mat-progress-bar mode="determinate" [value]="file.perc"></mat-progress-bar>
       </div>
       <div class="img-prog-bar">
-        <div class="img-prog-fill" [style.width.%]="file.proc"></div>
         <div class="img-prog-label">
           <div class="img-prog-label-static">Procesando...</div>
           <div class="img-prog-label-prog">{{file.proc}}%</div>
         </div>
+        <mat-progress-bar mode="determinate" [value]="file.proc"></mat-progress-bar>
       </div>
     </div>
-  </div>
+  </mat-card>
 </div>
-
-<!--label for="input" class="add-button">
-  <mat-icon aria-hidden="false" aria-label="add">add</mat-icon>
-</label-->
-<!--label for="input" class="add-button">
-  <button mat-mini-fab color="primary">
-    <mat-icon>add</mat-icon>
-  </button>
-</label-->
 
 <button mat-mini-fab color="primary" class="add-button">
   <label for="input">

@@ -36,6 +36,10 @@ export class ManagerComponent implements OnInit, OnDestroy {
 
   goTo(path) { this.router.navigate([path]); }
 
+  closeRoom(token) {
+    this.managerService.closeRoom(token);
+  }
+
   openRoom(id) { this.idRoom = id; }
 
   private listeners() {

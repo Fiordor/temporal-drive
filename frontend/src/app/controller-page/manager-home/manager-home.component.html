@@ -2,12 +2,15 @@
   <div *ngFor="let room of rooms">
     <mat-card class="manager-box" (click)="clickOpenRoom(room.id)">
       <div class="box-token">{{room.token}}</div>
-      <div class="box-number">#{{room.id}}</div>
+      <div class="box-number" [ngClass]="{ 'box-number-active': room.openRoom }" >#{{room.id}}</div>
       <div class="box-size">
         <div>{{ capacityToString(room.capacityMB) }}</div>
         <div>{{busyToString(room.busy_perc)}} </div>
       </div>
-      <div class="box-dateOff">{{ dateOffToString(room.dateOff) }}</div>
+      <div class="box-dateOff">
+        <div>{{ dateOffToString(0, room.dateOff) }}</div>
+        <div>{{ dateOffToString(1, room.dateOff) }}</div>
+      </div>
     </mat-card>
   </div>
 </div>

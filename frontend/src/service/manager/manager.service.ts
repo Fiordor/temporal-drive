@@ -34,6 +34,10 @@ export class ManagerService {
     this.socket.emit('join-on-room', 'manager');
   }
 
+  closeRoom(room) {
+    this.socket.emit('close-room', room);
+  }
+
   updateSizes() {
     return this.socket.fromEvent('update-sizes-manager').pipe( map( (data) => { return <any>data; } ) );
   }

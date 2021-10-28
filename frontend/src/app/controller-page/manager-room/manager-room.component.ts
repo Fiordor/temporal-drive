@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BackendService } from 'src/service/backend/backend.service';
 
@@ -15,6 +15,7 @@ export class ManagerRoomComponent implements OnInit {
 
   @Input() id: number = 0;
   @Input() rooms: any[] = [];
+  @Output() closeRoom = new EventEmitter<string>();
 
   room : any = { id: 0, openRoom: 0, dateOn: 0, dateOff: 0 };
 
@@ -42,7 +43,6 @@ export class ManagerRoomComponent implements OnInit {
   }
 
   setCapacity(capacity) {
-    console.log(capacity);
     this.capacity = capacity;
   }
 
@@ -102,8 +102,6 @@ export class ManagerRoomComponent implements OnInit {
     this.token = room.token;
     this.capacity = room.capacity / (1024 * 1024);
 
-    console.log('room', this.room);
-    console.log('rooms', this.rooms);
   }
 
   private openSnackBar(message: string) {
@@ -149,8 +147,11 @@ export class ManagerRoomComponent implements OnInit {
       token: this.room.token
     }
 
+    this.closeRoom.emit(this.room.token);
     this.backendService.roomOff(room).subscribe(res => {
-      if (res.res == 'ok') { this.setRooms(res.message); }
+      if (res.res == 'ok') {
+        this.setRooms(res.message);
+      }
     });
   }
 }

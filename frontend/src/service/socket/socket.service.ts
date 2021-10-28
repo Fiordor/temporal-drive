@@ -79,6 +79,10 @@ export class SocketService {
     this.socket.emit('stop-first-update-files');
   }
 
+  closeRoom() {
+    return this.socket.fromEvent('close-room').pipe( map( (data) => { return <any>data; } ) );
+  }
+
 
   /**
    * Escucha cuando un archivo se confirma que se puede subir

@@ -11,6 +11,8 @@ $color-red: #d50000;
 $color-green: #64dd17;
 
 $primary: #3f51b5;
+$secondary: #fff;
+$light-opacity: rgba(0,0,0,.12);
 $text-color: rgba(0,0,0,.87);
 
 $button-transition: 0.2s;
@@ -99,19 +101,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   bottom: 20px;
 }
 
-.add-button label {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
 .add-button label:hover {
   cursor: pointer;
 }
@@ -125,90 +114,92 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   justify-items: center;
 }
 
-.img-box {
-  background-color: $color-4;
-  width: 100%;
+.room-card {
+  padding: 0 !important;
   height: 200px;
+  width: 100%;
   position: relative;
-  border-radius: 2px;
 }
 
-.img-prev {
+.card-delete {
+  position: absolute !important;
+  top: 8px;
+  right: 8px;
+}
+
+.card-download {
+  position: absolute !important;
+  bottom: 8px;
+  right: 8px;
+}
+
+.card-close {
+  position: fixed !important;
+  top: -40px;
+  left: -40px;
+  transition: 0.2s;
+  z-index: 12;
+}
+
+.card-close-open {
+  position: fixed !important;
+  top: 20px;
+  left: 20px;
+}
+
+.card-img-background {
+  position: absolute;
   width: 100%;
   height: 100%;
-
-  position: absolute;
-  transform: translate(-50%, -50%);
-  top: 50%;
-  left: 50%;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  transition: $button-transition;
-  z-index: 1;
+  top: 0;
+  left: 0;
+  transition: 0.2s;
 }
 
-.img-prev-open {
-  background-color: $color-2-opacity;
-  position: fixed;
-  z-index: 10;
-}
-
-.img-prev-open:hover {
+.card-img-background:hover {
   cursor: pointer;
 }
 
-.img-main {
+.card-img-background-open {
+  position: fixed;
+  background-color: $secondary;
+  z-index: 10;
+}
+
+.card-img-img {
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  transition: 0.2s;
 }
 
-.img-main:hover {
+.card-img-img:hover {
   cursor: pointer;
 }
 
-.img-main-open:hover {
+.card-img-img-open {
+  position: fixed;
+  z-index: 11;
+}
+
+.card-img-img-open:hover {
   cursor: auto;
 }
 
-.img-button {
-  background-color: $color-2-opacity;
-  transition: $button-transition;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  z-index: 2;
-}
-
-.img-button:hover {
-  background-color: $color-2;
-  cursor: pointer;
-}
-
-.img-button-delete {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-}
-
-.img-button-download {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
+.card-img-img-uploading {
+  opacity: 0.3;
 }
 
 .img-progress {
   position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
   width: 100%;
   display: grid;
   grid-template-rows: 1fr 1fr;
@@ -216,17 +207,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .img-prog-bar {
-  position: relative;
-  height: 25px;
   width: 100%;
-  background-color: $color-2-opacity;
+  display: flex;
+  flex-direction: column;
 }
 
 .img-prog-label {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  top: 50%;
-  left: 50%;
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -236,16 +222,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .img-prog-label-prog {
   width: 40px;
   text-align: right;
-}
-
-.img-prog-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0%;
-  transition: .1s;
-  background-color: $color-green;
 }
 
 //
@@ -274,8 +250,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .box-token {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 8px;
+  left: 8px;
 }
 
 .box-number {
@@ -286,20 +262,22 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   font-size: 50px;
 }
 
+.box-number-active {
+  color: $light-opacity;
+}
+
 .box-size {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 8px;
+  right: 8px;
   text-align: right;
 }
 
 .box-dateOff {
   position: absolute;
-  bottom: 16px;
-  left: 16px;
+  bottom: 8px;
+  left: 8px;
 }
-
-
 
 //
 // manager-room ----------------------------------------------------------------
@@ -411,7 +389,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .line {
   align-self: center;
   height: 2px;
-  background-color: rgba(0,0,0,.12);
+  background-color: $light-opacity;
 }
 
 .capacity-buttons {
@@ -496,5 +474,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .button-red {
   background-color: $color-red;
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+@media only screen and (max-width: 420px) {
+
+  .grid-buttons button {
+    padding: 0 !important;
+    background-color: #d50000;
+    font-size: 12px;
+    min-width: auto !important;
+  }
+}
