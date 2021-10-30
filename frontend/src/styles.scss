@@ -53,11 +53,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   left: 50%;
   top: 50%;
   position: fixed;
-  background-color: $color-2;
   width: 250px;
   height: 250px;
   border-radius: 4px;
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -65,30 +64,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .input-room {
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
-.input-room input {
-  margin-bottom: 5px;
-  text-align: center;
-  font-size: 20px;
-  width: 120px;
-  padding: 10px;
-}
-
-.input-room .home-button {
-  margin-top: 5px;
-  transition: $button-transition;
-  border-radius: 4px;
-  width: auto;
-  text-transform: uppercase;
-  font-size: 20px;
-  padding: 10px;
-}
-
-.input-room .home-button:hover {
-  margin-top: 5px;
-  background-color: $color-1;
-  cursor: pointer;
+.form-input-room {
+  width: 150px;
 }
 
 //
@@ -137,33 +118,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   position: fixed !important;
   top: -40px;
   left: -40px;
-  transition: 0.2s;
   z-index: 12;
-}
-
-.card-close-open {
-  position: fixed !important;
-  top: 20px;
-  left: 20px;
 }
 
 .card-img-background {
   position: absolute;
+  transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  top: 0;
-  left: 0;
-  transition: 0.2s;
+  top: 50%;
+  left: 50%;
+  background-color: $secondary;
 }
 
 .card-img-background:hover {
   cursor: pointer;
-}
-
-.card-img-background-open {
-  position: fixed;
-  background-color: $secondary;
-  z-index: 10;
 }
 
 .card-img-img {

@@ -3,11 +3,34 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SocketService } from 'src/service/socket/socket.service';
 
 import { saveAs } from 'file-saver';
+import { animate, keyframes, state, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
-  styleUrls: ['./room.component.scss']
+  styleUrls: ['./room.component.scss'],
+  animations: [
+    trigger('closeButton', [
+      state('true', style({ top: '20px', left: '20px' })),
+      state('false', style({ top: '-40px', left: '-40px' })),
+      transition('true <=> false', [ animate('0.2s') ])
+    ]),
+    trigger('imgBackground', [
+      state('true', style({ position: 'fixed', 'z-index': 10, width: '100%', height: '100%' })),
+      state('false', style({ position: 'absolute' })),
+      transition('false => true', [
+        animate('0.2s', keyframes([
+          style({ position: 'fixed', 'z-index': 10, width: '0px', height: '0px', offset: 0 }),
+          style({ width: '100%', height: '100%', offset: 1 })
+        ]))
+      ]),
+      transition('true => false', [
+        animate('0.2s', keyframes([
+          style({ width: '0px', height: '0px', offset: 1 })
+        ]))
+      ])
+    ]),
+  ]
 })
 export class RoomComponent implements OnInit, OnDestroy {
 

@@ -1,6 +1,10 @@
-<div class="home-box">
+<mat-card class="home-box">
   <div class="input-room">
-    <input type="text" [(ngModel)]="room" (keydown)="onKeydown($event)" placeholder="room" >
-    <div class="home-button" (click)="join()">Entrar</div>
+    <mat-form-field class="form-input-room" appearance="fill">
+      <mat-label>Código de la sala</mat-label>
+      <input matInput type="text" [(ngModel)]="room" (keydown)="onKeydown($event)">
+    </mat-form-field>
+    
+    <button mat-raised-button color="primary" (click)="join()">Entrar</button>
   </div>
-</div>
+</mat-card>

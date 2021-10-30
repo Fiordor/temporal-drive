@@ -24,7 +24,8 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatProgressBarModule} from '@angular/material/progress-bar'; 
 import {MatCardModule} from '@angular/material/card';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
-import {MatMenuModule} from '@angular/material/menu'; 
+import {MatMenuModule} from '@angular/material/menu';
+import {MatInputModule} from '@angular/material/input'; 
 
 const config: SocketIoConfig = {
   url: environment.socket,
@@ -59,7 +60,8 @@ const config: SocketIoConfig = {
     MatProgressBarModule,
     MatCardModule,
     MatSnackBarModule,
-    MatMenuModule
+    MatMenuModule,
+    MatInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]

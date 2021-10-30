@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
 
 		let sql = `SELECT * FROM room WHERE token LIKE '${room}'`;
 		connection.query(sql, (err, rows, fields) => {
-			socket.emit('get-room', (err) ? null : rows[0]);
+			socket.emit('get-room', (err || rows.length != 1) ? null : rows[0]);
 		});
 	});
 

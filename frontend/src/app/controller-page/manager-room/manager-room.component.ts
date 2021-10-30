@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AlertService } from 'src/service/alert/alert.service';
 import { BackendService } from 'src/service/backend/backend.service';
 
 @Component({
@@ -24,7 +25,7 @@ export class ManagerRoomComponent implements OnInit {
   days: string = '0';
   time: string = '00:00';
 
-  constructor(private backendService: BackendService, private _snackBar: MatSnackBar) { }
+  constructor(private backendService: BackendService, private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.setRoomOnLocal(this.rooms[this.id - 1]);
@@ -104,22 +105,18 @@ export class ManagerRoomComponent implements OnInit {
 
   }
 
-  private openSnackBar(message: string) {
-    this._snackBar.open(message, 'OK');
-  }
-
   private powerOnRoom() {
 
     if (this.rooms.find(r => r.token == this.token) != undefined) {
-      this.openSnackBar('El token ya existe');
+      this.alertService.print('El token ya existe');
       return;
     }
     if (this.capacity == 0) {
-      this.openSnackBar('Falta la capacidad de la sala');
+      this.alertService.print('Falta la capacidad de la sala');
       return;
     }
     if (this.days.length == 0 && this.time.length == 0) {
-      this.openSnackBar('Necesita un tiempo límite');
+      this.alertService.print('Necesita un tiempo límite');
       return;
     }
 
