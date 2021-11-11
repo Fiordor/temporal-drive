@@ -21,7 +21,7 @@
     <div [@imgBackground]=" file.open != undefined ? true : false" class="card-img-background"
       (click)="openOrCloseFile(file)"></div>
 
-    <img class="card-img-img" [ngClass]="{ 'card-img-img-open' : file.open != undefined, 'card-img-img-uploading' : file.perc != undefined }" [src]="file.path"
+    <img [@mainImg]=" file.open != undefined ? true : false" class="card-img-img" [ngClass]="{ 'card-img-img-open' : file.open != undefined, 'card-img-img-uploading' : file.perc != undefined }" [src]="file.path"
       (error)="errorLoadingImg($event)" (click)="openFile(file)" />
 
     <!-- <button class="card-close" [ngClass]="{ 'card-close-open' : file.open != undefined }" -->

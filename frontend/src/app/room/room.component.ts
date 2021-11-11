@@ -30,6 +30,16 @@ import { animate, keyframes, state, style, transition, trigger } from '@angular/
         ]))
       ])
     ]),
+    trigger('mainImg', [
+      state('true', style({ position: 'fixed', 'z-index': 11 })),
+      state('false', style({ position: 'absolute' })),
+      transition('false => true', [
+        animate('0.2s', keyframes([
+          style({ position: 'fixed', 'z-index': 11, width: '0px', height: '0px', offset: 0 }),
+          style({ width: 'auto', height: 'auto', 'max-width': '100%', 'max-height': '100%', offset: 1 })
+        ]))
+      ])
+    ])
   ]
 })
 export class RoomComponent implements OnInit, OnDestroy {
